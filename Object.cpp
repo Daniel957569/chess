@@ -37,3 +37,8 @@ void Object::render() {
 }
 
 void Object::clean() { SDL_DestroyTexture(objTexture); }
+
+void Object::changePosition(int x, int y) {
+  xpos = x;
+  ypos = y;
+}

@@ -1,7 +1,11 @@
 #include "Game.hpp"
 #include <cstdio>
+#include <vector>
 
-Board *board;
+Board *chessboard;
+
+Object *squareDragged;
+int fromPos, toPos;
 
 SDL_Renderer *Game::gRenderer = nullptr;
 
@@ -31,39 +35,65 @@ void Game::init(const char *name, int x, int y, int w, int h) {
       }
     }
   }
-  board = new Board();
-  board->initBoard();
+  chessboard = new Board();
+  chessboard->initBoard();
 }
 
 void Game::handleEvents() {
+
   SDL_Event event;
-  SDL_PollEvent(&event);
-  switch (event.type) {
-  case SDL_QUIT:
-    isRunning = false;
-    break;
-  case SDL_MOUSEBUTTONDOWN: {
-    isDragging = true;
-    int idk = Board::calcPosition(event.motion.x, event.motion.y);
-    printf("%d\n", idk);
-    break;
-  }
-  default:
-    break;
+  if (SDL_PollEvent(&event)) {
+    switch (event.type) {
+    case SDL_QUIT:
+      isRunning = false;
+      return;
+    case SDL_MOUSEBUTTONDOWN: {
+      isDragging = true;
+      fromPos = chessboard->calcPosition(event.motion.x, event.motion.y);
+      squareDragged = chessboard->board[fromPos];
+
+      return;
+    }
+    case SDL_MOUSEBUTTONUP: {
+      isDragging = false;
+      int x = (event.motion.x / 100) * 100;
+      int y = (event.motion.y / 100) * 100;
+
+      toPos = chessboard->calcPosition(x, y);
+
+      if (chessboard->makeMove(fromPos, toPos, x, y)) {
+        isWhiteTurn = !isWhiteTurn;
+      } else {
+        chessboard->board[fromPos]->changePosition((fromPos % 8) * 100,
+                                                   (fromPos / 8) * 100);
+      }
+
+      squareDragged = NULL;
+
+      return;
+    }
+    case SDL_MOUSEMOTION:
+      if (isDragging) {
+        squareDragged->changePosition(event.motion.x - 50, event.motion.y - 50);
+      }
+      return;
+    default:
+      return;
+    }
   }
 }
 
-void Game::update() { board->updateBoard(); }
+void Game::update() { chessboard->updateBoard(); }
 
 void Game::render() {
   SDL_RenderClear(gRenderer);
-  board->RenderBoard();
+  chessboard->RenderBoard();
   SDL_RenderPresent(gRenderer);
 }
 
 void Game::clean() {
   SDL_DestroyWindow(gWindow);
-  board->cleanBoard();
+  chessboard->cleanBoard();
   SDL_DestroyRenderer(gRenderer);
 
   gWindow = NULL;

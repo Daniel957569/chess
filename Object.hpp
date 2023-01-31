@@ -21,11 +21,12 @@ public:
   void render();
   void update();
   void clean();
+  void changePosition(int x, int y);
+  Type type;
+  bool isWhite;
+  SDL_Texture *objTexture;
 
 private:
   int xpos, ypos, width, height;
-  SDL_Texture *objTexture;
   SDL_Rect src, dest;
-  Type type;
-  bool isWhite;
 };

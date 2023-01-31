@@ -1,5 +1,6 @@
 #include "Game.hpp"
 #include <SDL2/SDL_video.h>
+#include <cstdio>
 
 Game *game = NULL;
 
@@ -13,10 +14,7 @@ int main(int argc, char *argv[]) {
   game = new Game();
   game->init("chess", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 800);
 
-  /* int x = 0; */
   while (game->running()) {
-    /* x++; */
-    /* printf("%d\n", x); */
     frameStart = SDL_GetTicks();
 
     game->handleEvents();
@@ -25,7 +23,11 @@ int main(int argc, char *argv[]) {
 
     frameTime = SDL_GetTicks() - frameStart;
     if (frameDelay > frameTime) {
-      SDL_Delay(frameDelay - frameTime);
+      if (game->dragging()) {
+        SDL_Delay(1);
+      } else {
+        SDL_Delay(frameDelay - frameTime);
+      }
     }
   }
 
