@@ -13,28 +13,26 @@ public:
   void updateBoard();
   void RenderBoard();
   void cleanBoard();
-  bool makeMove(int from, int to, int x, int y);
+  bool makeMove(int from, int to, int x, int y, bool isWhiteTurn);
 
   static int calcPosition(int x, int y);
 
   std::array<Object *, 63> board;
   std::vector<char> possiableMoves();
-  int isPromotion;
 
 private:
   Object *makePiece(SDL_Texture *tex, int x, int y, Type pieceType,
-                    bool isWhite);
+                    Side isWhite);
   void renderWhiteSide(int index);
   void renderBlackSide(int index);
-  void renderPawn(int index, int amount, int x, int y, bool isWhite);
+  void renderPawn(int index, int amount, int x, int y, Side isWhite);
   void renderBlank(int index, int amount, int x, int y);
   void renderFEN(std::string FEN);
 
   bool isLegal(Type piece, int position);
   bool checkDownPawn(int from, int to, int x, int y);
   bool checkUpPawn(int from, int to, int x, int y);
-  bool checkDownNight(int from, int to, int x, int y);
-  bool checkUpNight(int from, int to, int x, int y);
+  bool checkNight(int from, int to, int x, int y, Side side);
   bool checkDownBishop(int from, int to, int x, int y);
   bool checkUpBishop(int from, int to, int x, int y);
   bool checkDownQueen(int from, int to, int x, int y);
@@ -47,6 +45,11 @@ private:
 
   void swapSquares(int from, int to, int x, int y);
   void swapEnPassant(int from, int to, int x, int y, int piecePos);
+
+  void makePromotion(int from, int to, bool isWhite);
+  void addMove(int from, int to);
+
+  void printBoard();
 
   SDL_Texture *cBoard;
   SDL_Texture *bRook;

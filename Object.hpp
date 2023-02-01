@@ -8,13 +8,19 @@ typedef enum {
   ROOK,
   QUEEN,
   KING,
-  BLANK,
+  NONE,
   BOARD,
 } Type;
 
+typedef enum {
+  WHITE,
+  BLACK,
+  BLANK,
+} Side;
+
 class Object {
 public:
-  Object(SDL_Texture *tex, int x, int y, Type type, bool isWhite);
+  Object(SDL_Texture *tex, int x, int y, Type type, Side isWhite);
   Object(SDL_Texture *tex, int x, int y, int w, int h);
   ~Object();
 
@@ -23,7 +29,7 @@ public:
   void clean();
   void changePosition(int x, int y);
   Type type;
-  bool isWhite;
+  Side side;
   SDL_Texture *objTexture;
 
 private:

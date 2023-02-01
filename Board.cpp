@@ -27,14 +27,14 @@ void Board::initBoard() {
   wPawn = IMG_LoadTexture(Game::gRenderer, "../images/wp.png");
 
   textureBoard = new Object(cBoard, 0, 0, 800, 800);
-  /* renderBlackSide(0); */
-  /* renderPawn(8, 8, 0, 100, false); */
+  renderBlackSide(0);
+  renderPawn(8, 8, 0, 100, Side::BLACK);
 
-  /* renderBlank(16, 32, 0, 200); */
+  renderBlank(16, 32, 0, 200);
 
-  /* renderPawn(48, 8, 0, 600, true); */
-  /* renderWhiteSide(56); */
-  renderFEN("rnbqkbnr/4p3/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R");
+  renderPawn(48, 8, 0, 600, Side::WHITE);
+  renderWhiteSide(56);
+  /* renderFEN("rnbqkbnr/4p3/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R"); */
 }
 
 void Board::updateBoard() {
@@ -67,37 +67,37 @@ int Board::calcPosition(int x, int y) {
 }
 
 Object *Board::makePiece(SDL_Texture *tex, int x, int y, Type pieceType,
-                         bool isWhite) {
-  return new Object(tex, x, y, pieceType, isWhite);
+                         Side Side) {
+  return new Object(tex, x, y, pieceType, Side);
 }
 
 void Board::renderWhiteSide(int index) {
-  board[index] = makePiece(wRook, 0, 700, Type::ROOK, true);
-  board[index + 1] = makePiece(wNight, 100, 700, Type::NIGHT, true);
-  board[index + 2] = makePiece(wBishop, 200, 700, Type::BISHOP, true);
-  board[index + 3] = makePiece(wQueen, 300, 700, Type::QUEEN, true);
-  board[index + 4] = makePiece(wKing, 400, 700, Type::KING, true);
-  board[index + 5] = makePiece(wBishop, 500, 700, Type::BISHOP, true);
-  board[index + 6] = makePiece(wNight, 600, 700, Type::NIGHT, true);
-  board[index + 7] = makePiece(wRook, 700, 700, Type::ROOK, true);
+  board[index] = makePiece(wRook, 0, 700, Type::ROOK, Side::WHITE);
+  board[index + 1] = makePiece(wNight, 100, 700, Type::NIGHT, Side::WHITE);
+  board[index + 2] = makePiece(wBishop, 200, 700, Type::BISHOP, Side::WHITE);
+  board[index + 3] = makePiece(wQueen, 300, 700, Type::QUEEN, Side::WHITE);
+  board[index + 4] = makePiece(wKing, 400, 700, Type::KING, Side::WHITE);
+  board[index + 5] = makePiece(wBishop, 500, 700, Type::BISHOP, Side::WHITE);
+  board[index + 6] = makePiece(wNight, 600, 700, Type::NIGHT, Side::WHITE);
+  board[index + 7] = makePiece(wRook, 700, 700, Type::ROOK, Side::WHITE);
 }
 
 void Board::renderBlackSide(int index) {
-  board[index] = makePiece(bRook, 0, 0, Type::ROOK, false);
-  board[index + 1] = makePiece(bNight, 100, 0, Type::NIGHT, false);
-  board[index + 2] = makePiece(bBishop, 200, 0, Type::BISHOP, false);
-  board[index + 3] = makePiece(bQueen, 300, 0, Type::QUEEN, false);
-  board[index + 4] = makePiece(bKing, 400, 0, Type::KING, false);
-  board[index + 5] = makePiece(bBishop, 500, 0, Type::BISHOP, false);
-  board[index + 6] = makePiece(bNight, 600, 0, Type::NIGHT, false);
-  board[index + 7] = makePiece(bRook, 700, 0, Type::ROOK, false);
+  board[index] = makePiece(bRook, 0, 0, Type::ROOK, Side::BLACK);
+  board[index + 1] = makePiece(bNight, 100, 0, Type::NIGHT, Side::BLACK);
+  board[index + 2] = makePiece(bBishop, 200, 0, Type::BISHOP, Side::BLACK);
+  board[index + 3] = makePiece(bQueen, 300, 0, Type::QUEEN, Side::BLACK);
+  board[index + 4] = makePiece(bKing, 400, 0, Type::KING, Side::BLACK);
+  board[index + 5] = makePiece(bBishop, 500, 0, Type::BISHOP, Side::BLACK);
+  board[index + 6] = makePiece(bNight, 600, 0, Type::NIGHT, Side::BLACK);
+  board[index + 7] = makePiece(bRook, 700, 0, Type::ROOK, Side::BLACK);
 }
 
-void Board::renderPawn(int index, int amount, int x, int y, bool isWhite) {
-  auto pawn = isWhite ? wPawn : bPawn;
+void Board::renderPawn(int index, int amount, int x, int y, Side Side) {
+  auto pawn = Side == Side::WHITE ? wPawn : bPawn;
 
   for (int i = index; i < index + amount; i++) {
-    board[i] = makePiece(pawn, x, y, Type::PAWN, isWhite);
+    board[i] = makePiece(pawn, x, y, Type::PAWN, Side);
     x += 100;
   }
 }
@@ -108,7 +108,7 @@ void Board::renderBlank(int index, int amount, int x, int y) {
       y += 100;
       x = 0;
     }
-    board[i] = makePiece(NULL, x, y, Type::BLANK, true);
+    board[i] = makePiece(NULL, x, y, Type::NONE, Side::BLANK);
     x += 100;
   }
 }
@@ -122,40 +122,40 @@ void Board::renderFEN(std::string FEN) {
     int x = (count % 8) * 100;
     switch (FEN[i]) {
     case 'r':
-      board[count] = makePiece(bRook, x, y, Type::ROOK, false);
+      board[count] = makePiece(bRook, x, y, Type::ROOK, Side::BLACK);
       break;
     case 'n':
-      board[count] = makePiece(bNight, x, y, Type::NIGHT, false);
+      board[count] = makePiece(bNight, x, y, Type::NIGHT, Side::BLACK);
       break;
     case 'b':
-      board[count] = makePiece(bBishop, x, y, Type::BISHOP, false);
+      board[count] = makePiece(bBishop, x, y, Type::BISHOP, Side::BLACK);
       break;
     case 'q':
-      board[count] = makePiece(bQueen, x, y, Type::QUEEN, false);
+      board[count] = makePiece(bQueen, x, y, Type::QUEEN, Side::BLACK);
       break;
     case 'k':
-      board[count] = makePiece(bKing, x, y, Type::KING, false);
+      board[count] = makePiece(bKing, x, y, Type::KING, Side::BLACK);
       break;
     case 'p':
-      board[count] = makePiece(bPawn, x, y, Type::PAWN, false);
+      board[count] = makePiece(bPawn, x, y, Type::PAWN, Side::BLACK);
       break;
     case 'R':
-      board[count] = makePiece(wRook, x, y, Type::ROOK, true);
+      board[count] = makePiece(wRook, x, y, Type::ROOK, Side::WHITE);
       break;
     case 'N':
-      board[count] = makePiece(wNight, x, y, Type::NIGHT, true);
+      board[count] = makePiece(wNight, x, y, Type::NIGHT, Side::WHITE);
       break;
     case 'B':
-      board[count] = makePiece(wBishop, x, y, Type::BISHOP, true);
+      board[count] = makePiece(wBishop, x, y, Type::BISHOP, Side::WHITE);
       break;
     case 'Q':
-      board[count] = makePiece(wQueen, x, y, Type::QUEEN, true);
+      board[count] = makePiece(wQueen, x, y, Type::QUEEN, Side::WHITE);
       break;
     case 'K':
-      board[count] = makePiece(wKing, x, y, Type::KING, true);
+      board[count] = makePiece(wKing, x, y, Type::KING, Side::WHITE);
       break;
     case 'P':
-      board[count] = makePiece(wPawn, x, y, Type::PAWN, true);
+      board[count] = makePiece(wPawn, x, y, Type::PAWN, Side::WHITE);
       break;
     case ' ':
       // for now fix later please
@@ -177,49 +177,56 @@ void Board::renderFEN(std::string FEN) {
   }
 }
 
-bool Board::makeMove(int from, int to, int x, int y) {
+bool Board::makeMove(int from, int to, int x, int y, bool isWhiteTurn) {
   bool isLegal = false;
   auto fromSqaure = board[from];
   auto toSqaure = board[to];
+  printf("%d %d\n", from, to);
 
   switch (fromSqaure->type) {
   case Type::PAWN:
-    if (fromSqaure->isWhite) {
+    printf("pawn\n");
+    if (fromSqaure->side == Side::WHITE) {
       isLegal = checkDownPawn(from, to, x, y);
     } else {
       isLegal = checkUpPawn(from, to, x, y);
     }
     break;
   case Type::NIGHT:
-    if (fromSqaure->isWhite) {
-      isLegal = checkDownNight(from, to, x, y);
+    printf("night\n");
+    if (fromSqaure->side == WHITE) {
+      isLegal = checkNight(from, to, x, y, WHITE);
     } else {
-      isLegal = checkUpNight(from, to, x, y);
+      isLegal = checkNight(from, to, x, y, BLACK);
     }
     break;
   case Type::BISHOP:
-    if (fromSqaure->isWhite) {
+    printf("bishop\n");
+    if (fromSqaure->side == Side::WHITE) {
       isLegal = checkDownBishop(from, to, x, y);
     } else {
       isLegal = checkUpBishop(from, to, x, y);
     }
     break;
   case Type::ROOK:
-    if (fromSqaure->isWhite) {
+    printf("rook\n");
+    if (fromSqaure->side == Side::WHITE) {
       isLegal = checkDownRook(from, to, x, y);
     } else {
       isLegal = checkUpRook(from, to, x, y);
     }
     break;
   case Type::QUEEN:
-    if (fromSqaure->isWhite) {
+    printf("queen\n");
+    if (fromSqaure->side == Side::WHITE) {
       isLegal = checkDownQueen(from, to, x, y);
     } else {
       isLegal = checkUpQueen(from, to, x, y);
     }
     break;
   case Type::KING:
-    if (fromSqaure->isWhite) {
+    printf("king\n");
+    if (fromSqaure->side == Side::WHITE) {
       isLegal = checkDownKing(from, to, x, y);
     } else {
       isLegal = checkUpKing(from, to, x, y);
@@ -228,6 +235,7 @@ bool Board::makeMove(int from, int to, int x, int y) {
   default:
     break;
   }
+  printBoard();
   return isLegal;
 }
 
@@ -235,40 +243,92 @@ bool Board::checkDownPawn(int from, int to, int x, int y) {
   bool ok = false;
   bool doubleJump = from >= 48 && from <= 55;
 
-  if ((board[from - 8]->type == Type::BLANK && from - 8 == to) ||
-      (board[from - 7]->type != Type::BLANK && from - 7 == to &&
-       !board[from - 9]->isWhite) ||
-      (board[from - 9]->type != Type::BLANK && from - 9 == to &&
-       !board[from - 9]->isWhite) ||
-      (doubleJump && board[from - 8]->type == Type::BLANK &&
-       board[from - 16]->type == Type::BLANK && from - 16 == to)) {
+  if ((board[from - 8]->side == Side::BLANK && from - 8 == to) ||
+      (board[from - 7]->side != Side::BLANK && from - 7 == to &&
+       board[from - 7]->side != Side::WHITE) ||
+      (board[from - 9]->side != Side::BLANK && from - 9 == to &&
+       board[from - 9]->side != Side::WHITE) ||
+      (doubleJump && board[from - 8]->side == Side::BLANK &&
+       board[from - 16]->side == Side::BLANK && from - 16 == to)) {
     ok = true;
     swapSquares(from, to, x, y);
   }
   // en passant
-  else if ((board[from - 1]->type != Type::BLANK && from - 9 == to)) {
+  else if ((board[from - 1]->side != Side::BLANK && from - 9 == to &&
+            board[from - 1]->side != Side::WHITE)) {
     swapEnPassant(from, to, x, y, from - 1);
     ok = true;
-  } else if ((board[from + 1]->type != Type::BLANK && from - 7 == to)) {
+  } else if ((board[from + 1]->side != Side::BLANK && from - 7 == to &&
+              board[from + 1]->side != Side::WHITE)) {
     swapEnPassant(from, to, x, y, from + 1);
     ok = true;
   }
 
-  if (ok && to >= 0 && to <= 7) {
-    isPromotion = 1;
-    printf("Dsdsd\n");
+  if (ok && to <= 7 && to >= 0) {
+    makePromotion(from, to, Side::WHITE);
   }
 
   return ok;
 }
 
-bool Board::checkUpPawn(int from, int to, int x, int y) { return false; }
+bool Board::checkUpPawn(int from, int to, int x, int y) {
+  bool ok = false;
+  bool doubleJump = from >= 8 && from <= 15;
 
-bool Board::checkDownNight(int from, int to, int x, int y) { return false; }
+  if ((board[from + 8]->side == Side::BLANK && from + 8 == to) ||
+      (board[from + 7]->side != Side::BLANK && from + 7 == to &&
+       board[from + 7]->side != Side::BLACK) ||
+      (board[from + 9]->side != Side::BLANK && from + 9 == to &&
+       board[from + 9]->side != Side::BLACK) ||
+      (doubleJump && board[from + 8]->side == Side::BLANK &&
+       board[from + 16]->side == Side::BLANK && from + 16 == to)) {
+    ok = true;
+    swapSquares(from, to, x, y);
+  }
+  // en passant
+  else if ((board[from + 1]->side != Side::BLANK && from + 9 == to &&
+            board[from + 1]->side != Side::BLACK)) {
+    swapEnPassant(from, to, x, y, from + 1);
+    ok = true;
+  } else if ((board[from - 1]->side != Side::BLANK && from + 7 == to &&
+              board[from - 1]->side != Side::BLACK)) {
+    swapEnPassant(from, to, x, y, from - 1);
+    ok = true;
+  }
 
-bool Board::checkUpNight(int from, int to, int x, int y) { return false; }
+  if (ok && to >= 55 && to <= 63) {
+    makePromotion(from, to, Side::BLACK);
+  }
 
-bool Board::checkDownBishop(int from, int to, int x, int y) { return false; }
+  return ok;
+}
+
+bool Board::checkNight(int from, int to, int x, int y, Side side) {
+  bool isLegal = false;
+  int distance = (from % 8) - (to % 8);
+  printf("%d\n", distance);
+
+  if (((from - 15 == to && board[from - 15]->side != side) ||
+       (from - 17 == to && board[from - 17]->side != side) ||
+       (from - 6 == to && board[from - 6]->side != side) ||
+       (from - 10 == to && board[from - 10]->side != side) ||
+       (from + 6 == to && board[from + 6]->side != side) ||
+       (from + 15 == to && board[from + 15]->side != side) ||
+       (from + 17 == to && board[from + 17]->side != side) ||
+       (from + 10 == to && board[from + 10]->side != side)) &&
+      distance >= -3 && distance <= 3) {
+    isLegal = true;
+    swapSquares(from, to, x, y);
+  }
+
+  return isLegal;
+}
+
+bool Board::checkDownBishop(int from, int to, int x, int y) {
+  bool isLegal = false;
+
+  return false;
+}
 
 bool Board::checkUpBishop(int from, int to, int x, int y) { return false; }
 
@@ -284,26 +344,78 @@ bool Board::checkDownKing(int from, int to, int x, int y) { return false; }
 
 bool Board::checkUpKing(int from, int to, int x, int y) { return false; }
 
-std::vector<char> Board::possiableMoves() {}
-
 void Board::swapSquares(int from, int to, int x, int y) {
   board[from]->changePosition(x, y);
   board[to]->objTexture = NULL;
-  board[to]->type = Type::BLANK;
+  board[to]->type = Type::NONE;
+
+  auto temp = board[from];
+  board[from] = board[to];
+  board[to] = temp;
+
+  board[from]->side = BLANK;
+}
+
+void Board::swapEnPassant(int from, int to, int x, int y, int piecePos) {
+  board[from]->changePosition(x, y);
+  board[to]->objTexture = NULL;
+  board[to]->type = Type::NONE;
+  board[piecePos]->objTexture = NULL;
+  board[piecePos]->side = Side::BLANK;
+  board[piecePos]->type = Type::NONE;
 
   auto temp = board[from];
   board[from] = board[to];
   board[to] = temp;
 }
 
-void Board::swapEnPassant(int from, int to, int x, int y, int piecePos) {
-  board[from]->changePosition(x, y);
-  board[to]->objTexture = NULL;
-  board[to]->type = Type::BLANK;
-  board[piecePos]->objTexture = NULL;
-  board[piecePos]->type = Type::BLANK;
-
+void Board::makePromotion(int from, int to, bool Side) {
   auto temp = board[from];
   board[from] = board[to];
   board[to] = temp;
+
+  board[to]->objTexture = Side == Side::WHITE ? wQueen : bQueen;
+  board[from]->objTexture = NULL;
+
+  board[from]->type = Type::NONE;
+  board[to]->type = Type::QUEEN;
+  board[to]->side = Side::WHITE;
+  board[from]->side = Side::BLANK;
+}
+
+void Board::printBoard() {
+  printf("|");
+  for (int i = 0; i < 64; i++) {
+    if (i % 8 == 0 && i != 0) {
+      printf("\n---------------------------------\n");
+      printf("|");
+    }
+    switch (board[i]->type) {
+    case Type::PAWN:
+      printf(" P |");
+      break;
+    case Type::NIGHT:
+      printf(" N |");
+      break;
+    case Type::BISHOP:
+      printf(" B |");
+      break;
+    case Type::QUEEN:
+      printf(" Q |");
+      break;
+    case Type::KING:
+      printf(" K |");
+      break;
+    case Type::ROOK:
+      printf(" R |");
+      break;
+    case Type::NONE:
+      printf("   |");
+      break;
+    default:
+      // unreachable
+      break;
+    }
+  }
+  printf("\n----------------------------------\n");
 }

@@ -51,17 +51,24 @@ void Game::handleEvents() {
       isDragging = true;
       fromPos = chessboard->calcPosition(event.motion.x, event.motion.y);
       squareDragged = chessboard->board[fromPos];
+      if ((isWhiteTurn && squareDragged->side != WHITE) ||
+          (!isWhiteTurn) && squareDragged->side != BLACK) {
+        squareDragged = NULL;
+      }
 
       return;
     }
     case SDL_MOUSEBUTTONUP: {
       isDragging = false;
+      if (squareDragged == NULL) {
+        break;
+      }
       int x = (event.motion.x / 100) * 100;
       int y = (event.motion.y / 100) * 100;
 
       toPos = chessboard->calcPosition(x, y);
 
-      if (chessboard->makeMove(fromPos, toPos, x, y)) {
+      if (chessboard->makeMove(fromPos, toPos, x, y, isWhiteTurn)) {
         isWhiteTurn = !isWhiteTurn;
       } else {
         chessboard->board[fromPos]->changePosition((fromPos % 8) * 100,
@@ -73,7 +80,8 @@ void Game::handleEvents() {
       return;
     }
     case SDL_MOUSEMOTION:
-      if (isDragging) {
+      if (isDragging && squareDragged != NULL) {
+
         squareDragged->changePosition(event.motion.x - 50, event.motion.y - 50);
       }
       return;

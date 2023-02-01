@@ -1,7 +1,7 @@
 #include "Object.hpp"
 #include "Game.hpp"
 
-Object::Object(SDL_Texture *tex, int x, int y, Type pieceType, bool isItWhite) {
+Object::Object(SDL_Texture *tex, int x, int y, Type pieceType, Side isItWhite) {
   objTexture = tex;
 
   height = 100;
@@ -9,7 +9,7 @@ Object::Object(SDL_Texture *tex, int x, int y, Type pieceType, bool isItWhite) {
   xpos = x;
   ypos = y;
   type = pieceType;
-  isWhite = isItWhite;
+  side = isItWhite;
 }
 
 Object::Object(SDL_Texture *tex, int x, int y, int w, int h) {
