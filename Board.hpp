@@ -1,8 +1,15 @@
-#pragma once
+#ifndef board_hpp
+#define board_hpp
+
 #include "Object.hpp"
 #include <array>
 #include <string>
 #include <vector>
+
+#define TO_COLUMN(move) ((char)move.to % 8 + 97)
+#define TO_ROW(move) ((char)move.to / 8 + 49)
+#define FROM_COLUMN(move) ((char)move.from % 8 + 97)
+#define FROM_ROW(move) ((char)move.from / 8 + 49)
 
 typedef struct {
   int from;
@@ -25,6 +32,7 @@ public:
   static int calcPosition(int x, int y);
 
   std::array<Object *, 63> board;
+  std::array<Object *, 63> secondBoard;
   std::vector<char> possiableMoves();
 
 private:
@@ -56,10 +64,12 @@ private:
   void makePromotion(int from, int to, bool isWhite);
   void addMove(int from, int to);
 
-  std::vector<std::string> possibleMoves(std::vector<Move> *moves, Type piece);
+  bool hasMultiMovesForSquare(std::vector<Move> *moves, int to, Type piece);
+  std::vector<std::string> possibleMoves();
 
   void pushMove(std::vector<Move> *moves, int from, int to, Side side);
   void copyVector(std::vector<Move> *moves);
+  bool willBeInCheck(Move *move);
 
   void printBoard();
   void printBoard2();
@@ -78,3 +88,5 @@ private:
   SDL_Texture *wKing;
   SDL_Texture *wPawn;
 };
+
+#endif

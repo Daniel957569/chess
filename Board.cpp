@@ -1,10 +1,6 @@
 #include "Board.hpp"
 #include "Game.hpp"
 #include "Object.hpp"
-#include <SDL2/SDL_timer.h>
-#include <asm-generic/errno.h>
-#include <cstdio>
-#include <vector>
 
 Object *textureBoard;
 
@@ -185,6 +181,7 @@ bool Board::makeMove(int from, int to, int x, int y, bool isWhiteTurn) {
   auto fromSqaure = board[from];
   auto toSqaure = board[to];
   printf("%d %d\n", from, to);
+  std::vector<int> idk;
 
   switch (fromSqaure->type) {
   case Type::PAWN:
@@ -238,68 +235,120 @@ bool Board::makeMove(int from, int to, int x, int y, bool isWhiteTurn) {
   default:
     break;
   }
+  /* auto arrStr = possibleMoves(); */
+  /* for (int i = 0; i < arrStr.size(); i++) { */
+  /*   printf("%s\n", arrStr[i].c_str()); */
+  /* } */
+
+  allMoves.clear();
   return isLegal;
 }
 
 bool Board::checkDownPawn(int from, int to, int x, int y) {
-  bool ok = false;
+  int ok = 0;
   bool doubleJump = from >= 48 && from <= 55;
 
-  if ((board[from - 8]->side == Side::BLANK && from - 8 == to) ||
-      (board[from - 7]->side != Side::BLANK && from - 7 == to &&
-       board[from - 7]->side != Side::WHITE) ||
-      (board[from - 9]->side != Side::BLANK && from - 9 == to &&
-       board[from - 9]->side != Side::WHITE) ||
-      (doubleJump && board[from - 8]->side == Side::BLANK &&
-       board[from - 16]->side == Side::BLANK && from - 16 == to)) {
-    ok = true;
-    swapSquares(from, to, x, y);
-  }
-  // en passant
-  else if ((board[from - 1]->side != Side::BLANK && from - 9 == to &&
-            board[from - 1]->side != Side::WHITE)) {
-    swapEnPassant(from, to, x, y, from - 1);
-    ok = true;
-  } else if ((board[from + 1]->side != Side::BLANK && from - 7 == to &&
-              board[from + 1]->side != Side::WHITE)) {
-    swapEnPassant(from, to, x, y, from + 1);
-    ok = true;
+  std::vector<Move> moves;
+
+  if (board[from - 8]->side == BLANK && from - 8 == to) {
+    moves.push_back({from, to, PAWN, false});
   }
 
-  if (ok && to <= 7 && to >= 0) {
-    makePromotion(from, to, Side::WHITE);
+  if (board[from - 7]->side == BLACK && from - 7 == to) {
+    moves.push_back({from, to, PAWN, true});
+  }
+
+  if (board[from - 9]->side == BLACK && from - 9 == to) {
+    moves.push_back({from, to, PAWN, true});
+  }
+
+  if (doubleJump && board[from - 8]->side == BLANK &&
+      board[from - 16]->side == BLANK && from - 16 == to) {
+    moves.push_back({from, to, PAWN, false});
+  }
+
+  // en passant
+  if ((board[from - 1]->side != Side::BLANK && from - 9 == to &&
+       board[from - 1]->side != Side::WHITE)) {
+    moves.push_back({from, to, PAWN, true});
+    ok = 1;
+  }
+  if ((board[from + 1]->side != Side::BLANK && from - 7 == to &&
+       board[from + 1]->side != Side::WHITE)) {
+    moves.push_back({from, to, PAWN, true});
+    ok = 2;
+  }
+  copyVector(&moves);
+
+  if (ok == 1) {
+    swapEnPassant(from, to, x, y, from - 1);
+    return true;
+  } else if (ok == 2) {
+    swapEnPassant(from, to, x, y, from + 1);
+    return true;
+  }
+
+  for (int i = 0; i < moves.size(); i++) {
+    if (moves[i].to == to) {
+      swapSquares(from, to, x, y);
+      if (ok && to <= 7 && to >= 0) {
+        makePromotion(from, to, Side::WHITE);
+      }
+      return true;
+    }
   }
 
   return ok;
 }
 
 bool Board::checkUpPawn(int from, int to, int x, int y) {
-  bool ok = false;
+  int ok = 0;
   bool doubleJump = from >= 8 && from <= 15;
+  std::vector<Move> moves;
 
-  if ((board[from + 8]->side == Side::BLANK && from + 8 == to) ||
-      (board[from + 7]->side != Side::BLANK && from + 7 == to &&
-       board[from + 7]->side != Side::BLACK) ||
-      (board[from + 9]->side != Side::BLANK && from + 9 == to &&
-       board[from + 9]->side != Side::BLACK) ||
-      (doubleJump && board[from + 8]->side == Side::BLANK &&
-       board[from + 16]->side == Side::BLANK && from + 16 == to)) {
-    ok = true;
-    swapSquares(from, to, x, y);
+  if (board[from + 8]->side == BLANK && from + 8 == to) {
+    moves.push_back({from, to, PAWN, false});
   }
+  if (board[from + 7]->side == WHITE && from + 7 == to) {
+    moves.push_back({from, to, PAWN, true});
+  }
+  if (board[from + 9]->side == WHITE && from + 9 == to) {
+    moves.push_back({from, to, PAWN, true});
+  }
+  if (doubleJump && board[from + 8]->side == BLANK &&
+      board[from + 16]->side == BLANK && from + 16 == to) {
+    moves.push_back({from, to, PAWN, false});
+  }
+
   // en passant
-  else if ((board[from + 1]->side != Side::BLANK && from + 9 == to &&
-            board[from + 1]->side != Side::BLACK)) {
+  if ((board[from + 1]->side != Side::BLANK && from + 9 == to &&
+       board[from + 1]->side != Side::BLACK)) {
     swapEnPassant(from, to, x, y, from + 1);
-    ok = true;
-  } else if ((board[from - 1]->side != Side::BLANK && from + 7 == to &&
-              board[from - 1]->side != Side::BLACK)) {
+    ok = 1;
+  }
+  if ((board[from - 1]->side != Side::BLANK && from + 7 == to &&
+       board[from - 1]->side != Side::BLACK)) {
     swapEnPassant(from, to, x, y, from - 1);
-    ok = true;
+    ok = 2;
+  }
+  copyVector(&moves);
+
+  if (ok == 1) {
+    swapEnPassant(from, to, x, y, from + 1);
+    return true;
+  } else if (ok == 2) {
+    swapEnPassant(from, to, x, y, from - 1);
+    return true;
   }
 
-  if (ok && to >= 55 && to <= 63) {
-    makePromotion(from, to, Side::BLACK);
+  for (int i = 0; i < moves.size(); i++) {
+    if (moves[i].to == to) {
+      swapSquares(from, to, x, y);
+      if (ok && to <= 7 && to >= 0) {
+        makePromotion(from, to, Side::BLACK);
+      }
+      return true;
+    }
   }
 
   return ok;
@@ -308,7 +357,6 @@ bool Board::checkUpPawn(int from, int to, int x, int y) {
 bool Board::checkNight(int from, int to, int x, int y, Side side) {
   bool isLegal = false;
   int distance = (from % 8) - (to % 8);
-  printf("%d\n", distance);
 
   std::vector<Move> moves;
 
@@ -398,6 +446,7 @@ bool Board::checkQueen(int from, int to, int x, int y, Side side) {
   checkPossibleMoves(from, 9, edge, false, side, &moves);
 
   copyVector(&moves);
+  printf("dd: %ld\n", moves.size());
   for (int i = 0; i < moves.size(); i++) {
     if (moves[i].to == to) {
       swapSquares(from, to, x, y);
@@ -504,8 +553,10 @@ std::vector<Move> *Board::checkPossibleMoves(int pos, int times, int edge,
 
 void Board::copyVector(std::vector<Move> *moves) {
   auto len = allMoves.size();
+  printf("ss: %ld dd: %ld \n", moves->size(), allMoves.size());
+
   for (int i = 0; i < moves->size(); i++) {
-    allMoves[len + i] = moves->at(i);
+    allMoves.push_back(moves->at(i));
   }
 }
 
@@ -552,27 +603,112 @@ void Board::pushMove(std::vector<Move> *moves, int from, int to, Side side) {
   auto oppSide = side == WHITE ? BLACK : WHITE;
 
   if (board[from + 7]->side == oppSide) {
-    moves->push_back({from, to, board[from]->type, false});
-  } else {
     moves->push_back({from, to, board[from]->type, true});
+  } else {
+    moves->push_back({from, to, board[from]->type, false});
   }
 }
 
-std::vector<std::string> possibleMoves(std::vector<Move> moves, Type piece) {
+bool Board::hasMultiMovesForSquare(std::vector<Move> *moves, int to,
+                                   Type piece) {
+  int count = 0;
+  for (int i = 0; i < moves->size(); i++) {
+    if (count == 2) {
+      return true;
+    } else {
+      return false;
+    }
+    if (moves->at(i).to == to && piece == moves->at(i).piece) {
+      count++;
+    }
+  }
+  return false;
+}
+
+bool Board::willBeInCheck(Move *move) {}
+
+std::vector<std::string> Board::possibleMoves() {
   std::vector<std::string> convertedMoves;
 
-  switch (piece) {
-  case PAWN:
-  case KNIGHT:
-  case BISHOP:
-  case ROOK:
-  case QUEEN:
-  case KING:
-  default:
-    // unreachable
-    break;
-  }
+  for (int i = 0; i < allMoves.size(); i++) {
+    auto move = allMoves[i];
+    std::string str;
+    int count = 0;
 
+    switch (move.piece) {
+    case PAWN:
+      if (move.isTaking) {
+        str.push_back(FROM_COLUMN(move));
+        str.push_back('x');
+      }
+      str.push_back(TO_COLUMN(move));
+      str.push_back(TO_ROW(move));
+      break;
+    case KNIGHT:
+      str.push_back('N');
+      if (hasMultiMovesForSquare(&allMoves, move.to, KNIGHT)) {
+        str.push_back(FROM_COLUMN(move));
+      }
+      if (move.isTaking) {
+        str.push_back('x');
+      }
+
+      // turn it into a COLUMn
+      str.push_back(TO_COLUMN(move));
+      str.push_back(TO_ROW(move));
+      break;
+
+    case BISHOP:
+      if (hasMultiMovesForSquare(&allMoves, move.to, BISHOP)) {
+        str.push_back('B');
+        if (move.isTaking) {
+          str.push_back('x');
+        }
+      }
+
+      str.push_back(TO_COLUMN(move));
+      str.push_back(TO_ROW(move));
+      break;
+
+    case ROOK:
+      if (hasMultiMovesForSquare(&allMoves, move.to, ROOK)) {
+        str.push_back('R');
+        if (move.isTaking) {
+          str.push_back('x');
+        }
+      }
+      str.push_back(TO_COLUMN(move));
+      str.push_back(TO_ROW(move));
+      break;
+
+    case QUEEN:
+      if (hasMultiMovesForSquare(&allMoves, move.to, QUEEN)) {
+        str.push_back('Q');
+        if (move.isTaking) {
+          str.push_back('x');
+        }
+      }
+      str.push_back(TO_COLUMN(move));
+      str.push_back(TO_ROW(move));
+      break;
+
+    case KING:
+      if (hasMultiMovesForSquare(&allMoves, move.to, KING)) {
+        str.push_back('K');
+        if (move.isTaking) {
+          str.push_back('x');
+        }
+      }
+      str.push_back(TO_COLUMN(move));
+      str.push_back(TO_ROW(move));
+      break;
+
+    default:
+      // unreachable
+      break;
+    }
+    convertedMoves.push_back(str);
+  }
   return convertedMoves;
 }
 
