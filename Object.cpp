@@ -33,6 +33,10 @@ void Object::update() {
 }
 
 void Object::render() {
+  if (isMarked) {
+    SDL_SetRenderDrawColor(Game::gRenderer, 0xFF, 0x00, 0x00, 0xFF);
+    SDL_RenderFillRect(Game::gRenderer, &dest);
+  }
   SDL_RenderCopy(Game::gRenderer, objTexture, NULL, &dest);
 }
 

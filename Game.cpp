@@ -1,4 +1,5 @@
 #include "Game.hpp"
+#include <SDL2/SDL_mouse.h>
 #include <cstdio>
 #include <vector>
 
@@ -48,8 +49,8 @@ void Game::handleEvents() {
       isRunning = false;
       return;
     case SDL_MOUSEBUTTONDOWN: {
-      isDragging = true;
       fromPos = chessboard->calcPosition(event.motion.x, event.motion.y);
+      isDragging = true;
       squareDragged = chessboard->board[fromPos];
       if ((isWhiteTurn && squareDragged->side != WHITE) ||
           (!isWhiteTurn) && squareDragged->side != BLACK) {

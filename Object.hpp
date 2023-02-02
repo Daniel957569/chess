@@ -3,7 +3,7 @@
 
 typedef enum {
   PAWN,
-  NIGHT,
+  KNIGHT,
   BISHOP,
   ROOK,
   QUEEN,
@@ -27,10 +27,12 @@ public:
   void render();
   void update();
   void clean();
+  void markSquare();
   void changePosition(int x, int y);
   Type type;
   Side side;
   SDL_Texture *objTexture;
+  bool isMarked = false;
 
 private:
   int xpos, ypos, width, height;

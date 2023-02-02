@@ -4,6 +4,13 @@
 #include <string>
 #include <vector>
 
+typedef struct {
+  int from;
+  int to;
+  Type piece;
+  bool isTaking;
+} Move;
+
 class Board {
 public:
   Board();
@@ -33,15 +40,15 @@ private:
   bool checkDownPawn(int from, int to, int x, int y);
   bool checkUpPawn(int from, int to, int x, int y);
   bool checkNight(int from, int to, int x, int y, Side side);
-  bool checkDownBishop(int from, int to, int x, int y);
-  bool checkUpBishop(int from, int to, int x, int y);
-  bool checkDownQueen(int from, int to, int x, int y);
-  bool checkUpQueen(int from, int to, int x, int y);
-  bool checkDownKing(int from, int to, int x, int y);
-  bool checkUpKing(int from, int to, int x, int y);
-  bool checkDownRook(int from, int to, int x, int y);
-  bool checkUpRook(int from, int to, int x, int y);
+  bool checkBishop(int from, int to, int x, int y, Side side);
+  bool checkQueen(int from, int to, int x, int y, Side side);
+  bool checkKing(int from, int to, int x, int y, Side side);
+  bool checkRook(int from, int to, int x, int y, Side side);
   void markSquares();
+
+  std::vector<Move> *checkPossibleMoves(int pos, int times, int edge,
+                                        bool edgeSide, Side side,
+                                        std::vector<Move> *moves);
 
   void swapSquares(int from, int to, int x, int y);
   void swapEnPassant(int from, int to, int x, int y, int piecePos);
@@ -49,7 +56,13 @@ private:
   void makePromotion(int from, int to, bool isWhite);
   void addMove(int from, int to);
 
+  std::vector<std::string> possibleMoves(std::vector<Move> *moves, Type piece);
+
+  void pushMove(std::vector<Move> *moves, int from, int to, Side side);
+  void copyVector(std::vector<Move> *moves);
+
   void printBoard();
+  void printBoard2();
 
   SDL_Texture *cBoard;
   SDL_Texture *bRook;
