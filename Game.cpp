@@ -69,7 +69,7 @@ void Game::handleEvents() {
 
       toPos = chessboard->calcPosition(x, y);
 
-      if (chessboard->makeMove(fromPos, toPos, x, y, isWhiteTurn)) {
+      if (chessboard->makeMove(fromPos, toPos, isWhiteTurn)) {
         isWhiteTurn = !isWhiteTurn;
       } else {
         chessboard->board[fromPos]->changePosition((fromPos % 8) * 100,

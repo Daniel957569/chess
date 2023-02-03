@@ -6,6 +6,8 @@
 #include <string>
 #include <vector>
 
+#define AS_SIDE(num) (board[num]->side)
+
 #define TO_COLUMN(move) ((char)move.to % 8 + 97)
 #define TO_ROW(move) ((char)move.to / 8 + 49)
 #define FROM_COLUMN(move) ((char)move.from % 8 + 97)
@@ -16,6 +18,7 @@ typedef struct {
   int to;
   Type piece;
   bool isTaking;
+  int enPassent;
 } Move;
 
 class Board {
@@ -27,7 +30,7 @@ public:
   void updateBoard();
   void RenderBoard();
   void cleanBoard();
-  bool makeMove(int from, int to, int x, int y, bool isWhiteTurn);
+  bool makeMove(int from, int to, bool isWhiteTurn);
 
   static int calcPosition(int x, int y);
 
@@ -44,22 +47,29 @@ private:
   void renderBlank(int index, int amount, int x, int y);
   void renderFEN(std::string FEN);
 
-  bool isLegal(Type piece, int position);
-  bool checkDownPawn(int from, int to, int x, int y);
-  bool checkUpPawn(int from, int to, int x, int y);
-  bool checkNight(int from, int to, int x, int y, Side side);
-  bool checkBishop(int from, int to, int x, int y, Side side);
-  bool checkQueen(int from, int to, int x, int y, Side side);
-  bool checkKing(int from, int to, int x, int y, Side side);
-  bool checkRook(int from, int to, int x, int y, Side side);
+  bool checkDownPawn(int from, int to);
+  bool checkPawn(int from, int to, Side side);
+  bool checkNight(int from, int to, Side side);
+  bool checkBishop(int from, int to, Side side);
+  bool checkQueen(int from, int to, Side side);
+  bool checkKing(int from, int to, Side side);
+  bool checkRook(int from, int to, Side side);
   void markSquares();
 
-  std::vector<Move> *checkPossibleMoves(int pos, int times, int edge,
-                                        bool edgeSide, Side side,
-                                        std::vector<Move> *moves);
+  void knightMoves(int from, int to, std::vector<Move> *moves, Side side);
+  void kingMoves(int from, int to, std::vector<Move> *moves, Side side);
+  void pawnMoves(int from, int to, std::vector<Move> *moves, Side side,
+                 bool isUp);
+  void checkMove(std::vector<Move> *moves, int from, int to, int amount,
+                 Type type, Side side);
 
-  void swapSquares(int from, int to, int x, int y);
-  void swapEnPassant(int from, int to, int x, int y, int piecePos);
+  std::vector<Move> *checkPossibleMoves(int pos, int times, Side side,
+                                        std::vector<Move> *moves);
+  std::vector<Move> *getAllPossibleMoves();
+  std::vector<Move> *getAllPieceMoves(Type type, Side side);
+
+  void swapSquares(int from, int to);
+  void swapEnPassant(int from, int to, int piecePos);
 
   void makePromotion(int from, int to, bool isWhite);
   void addMove(int from, int to);
@@ -67,7 +77,8 @@ private:
   bool hasMultiMovesForSquare(std::vector<Move> *moves, int to, Type piece);
   std::vector<std::string> possibleMoves();
 
-  void pushMove(std::vector<Move> *moves, int from, int to, Side side);
+  void pushMove(std::vector<Move> *moves, int from, int to, Type piece,
+                Side side);
   void copyVector(std::vector<Move> *moves);
   bool willBeInCheck(Move *move);
 
