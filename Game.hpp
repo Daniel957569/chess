@@ -1,4 +1,8 @@
+#ifndef board_game
+#define board_game
+
 #include "Board.hpp"
+#include "Debug.hpp"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <type_traits>
@@ -25,3 +29,5 @@ private:
   bool isDragging = false;
   SDL_Window *gWindow;
 };
+
+#endif

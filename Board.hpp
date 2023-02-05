@@ -54,33 +54,40 @@ private:
   bool checkQueen(int from, int to, Side side);
   bool checkKing(int from, int to, Side side);
   bool checkRook(int from, int to, Side side);
-  void markSquares();
 
-  void knightMoves(int from, int to, std::vector<Move> *moves, Side side);
-  void kingMoves(int from, int to, std::vector<Move> *moves, Side side);
+  void getAllPieceMoves(int from, std::vector<Move> *moves, bool isWhite);
+
+  void knightMoves(int from, std::vector<Move> *moves, Side side);
+  void queenMoves(int from, std::vector<Move> *moves, Side side);
+  void rookMoves(int from, std::vector<Move> *moves, Side side);
+  void bishopMoves(int from, std::vector<Move> *moves, Side side);
+  void kingMoves(int from, std::vector<Move> *moves, Side side);
   void pawnMoves(int from, int to, std::vector<Move> *moves, Side side,
                  bool isUp);
-  void checkMove(std::vector<Move> *moves, int from, int to, int amount,
-                 Type type, Side side);
+  void checkMove(std::vector<Move> *moves, int from, int amount, Type type,
+                 Side side);
 
-  std::vector<Move> *checkPossibleMoves(int pos, int times, Side side,
+  void getAllPossibleMoves(int from, Side side, Type piece,
+                           std::vector<Move> *moves);
+
+  std::vector<Move> *checkPossibleMoves(int from, int times, Side side,
                                         std::vector<Move> *moves);
-  std::vector<Move> *getAllPossibleMoves();
-  std::vector<Move> *getAllPieceMoves(Type type, Side side);
 
-  void swapSquares(int from, int to);
-  void swapEnPassant(int from, int to, int piecePos);
+  void swapSquares(int from, int to, bool firstBoard);
+  void swapEnPassant(int from, int to, int piecePos, bool firstBoard);
+  void makePromotion(int from, int to, bool isWhite, bool firstBoard);
 
-  void makePromotion(int from, int to, bool isWhite);
   void addMove(int from, int to);
 
   bool hasMultiMovesForSquare(std::vector<Move> *moves, int to, Type piece);
-  std::vector<std::string> possibleMoves();
+  std::vector<std::string> generatePGN();
 
   void pushMove(std::vector<Move> *moves, int from, int to, Type piece,
                 Side side);
   void copyVector(std::vector<Move> *moves);
-  bool willBeInCheck(Move *move);
+
+  bool willBeInCheck(int from, int to, bool isWhite);
+  bool isInCheck(std::vector<Move> *moves, bool isWhite);
 
   void printBoard();
   void printBoard2();

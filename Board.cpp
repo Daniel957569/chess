@@ -7,13 +7,17 @@
 #include <vector>
 
 #define SIDE_EQUAL(num, op, side) (board[from op num]->side == side)
+#define GET_X(pos) ((pos % 8) * 100)
+#define GET_Y(pos) ((pos / 8) * 100)
 
 Object *textureBoard;
 
+std::vector<Move> allMoves;
+int whiteKing;
+int blackKing;
+
 Board::Board() {}
 Board::~Board() {}
-
-std::vector<Move> allMoves;
 
 void Board::initBoard() {
 
@@ -33,13 +37,14 @@ void Board::initBoard() {
 
   textureBoard = new Object(cBoard, 0, 0, 800, 800);
   renderBlackSide(0);
-  renderPawn(8, 8, 0, 100, Side::BLACK);
+  renderPawn(8, 8, 0, 100, BLACK);
 
   renderBlank(16, 32, 0, 200);
 
-  renderPawn(48, 8, 0, 600, Side::WHITE);
+  renderPawn(48, 8, 0, 600, WHITE);
   renderWhiteSide(56);
-  /* renderFEN("rnbqkbnr/4p3/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R"); */
+
+  /* renderFEN("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"); */
 }
 
 void Board::updateBoard() {
@@ -77,32 +82,56 @@ Object *Board::makePiece(SDL_Texture *tex, int x, int y, Type pieceType,
 }
 
 void Board::renderWhiteSide(int index) {
-  board[index] = makePiece(wRook, 0, 700, Type::ROOK, Side::WHITE);
-  board[index + 1] = makePiece(wNight, 100, 700, Type::KNIGHT, Side::WHITE);
-  board[index + 2] = makePiece(wBishop, 200, 700, Type::BISHOP, Side::WHITE);
-  board[index + 3] = makePiece(wQueen, 300, 700, Type::QUEEN, Side::WHITE);
-  board[index + 4] = makePiece(wKing, 400, 700, Type::KING, Side::WHITE);
-  board[index + 5] = makePiece(wBishop, 500, 700, Type::BISHOP, Side::WHITE);
-  board[index + 6] = makePiece(wNight, 600, 700, Type::KNIGHT, Side::WHITE);
-  board[index + 7] = makePiece(wRook, 700, 700, Type::ROOK, Side::WHITE);
+  // tried to refactor but the textureboard wouldn't render, weird. fix later
+  // mby
+
+  whiteKing = index + 4;
+  board[index] = makePiece(wRook, 0, 700, ROOK, WHITE);
+  board[index + 1] = makePiece(wNight, 100, 700, KNIGHT, WHITE);
+  board[index + 2] = makePiece(wBishop, 200, 700, BISHOP, WHITE);
+  board[index + 3] = makePiece(wQueen, 300, 700, QUEEN, WHITE);
+  board[index + 4] = makePiece(wKing, 400, 700, KING, WHITE);
+  board[index + 5] = makePiece(wBishop, 500, 700, BISHOP, WHITE);
+  board[index + 6] = makePiece(wNight, 600, 700, KNIGHT, WHITE);
+  board[index + 7] = makePiece(wRook, 700, 700, ROOK, WHITE);
+
+  secondBoard[index] = makePiece(wRook, 0, 700, ROOK, WHITE);
+  secondBoard[index + 1] = makePiece(wNight, 100, 700, KNIGHT, WHITE);
+  secondBoard[index + 2] = makePiece(wBishop, 200, 700, BISHOP, WHITE);
+  secondBoard[index + 3] = makePiece(wQueen, 300, 700, QUEEN, WHITE);
+  secondBoard[index + 4] = makePiece(wKing, 400, 700, KING, WHITE);
+  secondBoard[index + 5] = makePiece(wBishop, 500, 700, BISHOP, WHITE);
+  secondBoard[index + 6] = makePiece(wNight, 600, 700, KNIGHT, WHITE);
+  secondBoard[index + 7] = makePiece(wRook, 700, 700, ROOK, WHITE);
 }
 
 void Board::renderBlackSide(int index) {
-  board[index] = makePiece(bRook, 0, 0, Type::ROOK, Side::BLACK);
-  board[index + 1] = makePiece(bNight, 100, 0, Type::KNIGHT, Side::BLACK);
-  board[index + 2] = makePiece(bBishop, 200, 0, Type::BISHOP, Side::BLACK);
-  board[index + 3] = makePiece(bQueen, 300, 0, Type::QUEEN, Side::BLACK);
-  board[index + 4] = makePiece(bKing, 400, 0, Type::KING, Side::BLACK);
-  board[index + 5] = makePiece(bBishop, 500, 0, Type::BISHOP, Side::BLACK);
-  board[index + 6] = makePiece(bNight, 600, 0, Type::KNIGHT, Side::BLACK);
-  board[index + 7] = makePiece(bRook, 700, 0, Type::ROOK, Side::BLACK);
+  blackKing = index + 4;
+  board[index] = makePiece(bRook, 0, 0, ROOK, BLACK);
+  board[index + 1] = makePiece(bNight, 100, 0, KNIGHT, BLACK);
+  board[index + 2] = makePiece(bBishop, 200, 0, BISHOP, BLACK);
+  board[index + 3] = makePiece(bQueen, 300, 0, QUEEN, BLACK);
+  board[index + 4] = makePiece(bKing, 400, 0, KING, BLACK);
+  board[index + 5] = makePiece(bBishop, 500, 0, BISHOP, BLACK);
+  board[index + 6] = makePiece(bNight, 600, 0, KNIGHT, BLACK);
+  board[index + 7] = makePiece(bRook, 700, 0, ROOK, BLACK);
+
+  secondBoard[index] = makePiece(bRook, 0, 0, ROOK, BLACK);
+  secondBoard[index + 1] = makePiece(bNight, 100, 0, KNIGHT, BLACK);
+  secondBoard[index + 2] = makePiece(bBishop, 200, 0, BISHOP, BLACK);
+  secondBoard[index + 3] = makePiece(bQueen, 300, 0, QUEEN, BLACK);
+  secondBoard[index + 4] = makePiece(bKing, 400, 0, KING, BLACK);
+  secondBoard[index + 5] = makePiece(bBishop, 500, 0, BISHOP, BLACK);
+  secondBoard[index + 6] = makePiece(bNight, 600, 0, KNIGHT, BLACK);
+  secondBoard[index + 7] = makePiece(bRook, 700, 0, ROOK, BLACK);
 }
 
 void Board::renderPawn(int index, int amount, int x, int y, Side Side) {
-  auto pawn = Side == Side::WHITE ? wPawn : bPawn;
+  auto pawn = Side == WHITE ? wPawn : bPawn;
 
   for (int i = index; i < index + amount; i++) {
-    board[i] = makePiece(pawn, x, y, Type::PAWN, Side);
+    board[i] = makePiece(pawn, x, y, PAWN, Side);
+    secondBoard[i] = makePiece(pawn, x, y, PAWN, Side);
     x += 100;
   }
 }
@@ -113,7 +142,8 @@ void Board::renderBlank(int index, int amount, int x, int y) {
       y += 100;
       x = 0;
     }
-    board[i] = makePiece(NULL, x, y, Type::NONE, Side::BLANK);
+    board[i] = makePiece(NULL, x, y, NONE, BLANK);
+    secondBoard[i] = makePiece(NULL, x, y, NONE, BLANK);
     x += 100;
   }
 }
@@ -123,44 +153,56 @@ void Board::renderFEN(std::string FEN) {
   int i = 0;
   int count = 0;
   while (isOk) {
-    int y = (count / 8) * 100;
-    int x = (count % 8) * 100;
+    int y = GET_Y(count);
+    int x = GET_X(count);
     switch (FEN[i]) {
     case 'r':
-      board[count] = makePiece(bRook, x, y, Type::ROOK, Side::BLACK);
+      board[count] = makePiece(bRook, x, y, ROOK, BLACK);
+      secondBoard[count] = makePiece(bRook, x, y, ROOK, BLACK);
       break;
     case 'n':
-      board[count] = makePiece(bNight, x, y, Type::KNIGHT, Side::BLACK);
+      board[count] = makePiece(bNight, x, y, KNIGHT, BLACK);
+      secondBoard[count] = makePiece(bNight, x, y, KNIGHT, BLACK);
       break;
     case 'b':
-      board[count] = makePiece(bBishop, x, y, Type::BISHOP, Side::BLACK);
+      board[count] = makePiece(bBishop, x, y, BISHOP, BLACK);
+      secondBoard[count] = makePiece(bBishop, x, y, BISHOP, BLACK);
       break;
     case 'q':
-      board[count] = makePiece(bQueen, x, y, Type::QUEEN, Side::BLACK);
+      board[count] = makePiece(bQueen, x, y, QUEEN, BLACK);
+      secondBoard[count] = makePiece(bQueen, x, y, QUEEN, BLACK);
       break;
     case 'k':
-      board[count] = makePiece(bKing, x, y, Type::KING, Side::BLACK);
+      board[count] = makePiece(bKing, x, y, KING, BLACK);
+      secondBoard[count] = makePiece(bKing, x, y, KING, BLACK);
       break;
     case 'p':
-      board[count] = makePiece(bPawn, x, y, Type::PAWN, Side::BLACK);
+      board[count] = makePiece(bPawn, x, y, PAWN, BLACK);
+      secondBoard[count] = makePiece(bPawn, x, y, PAWN, BLACK);
       break;
     case 'R':
-      board[count] = makePiece(wRook, x, y, Type::ROOK, Side::WHITE);
+      board[count] = makePiece(wRook, x, y, ROOK, WHITE);
+      secondBoard[count] = makePiece(wRook, x, y, ROOK, WHITE);
       break;
     case 'N':
-      board[count] = makePiece(wNight, x, y, Type::KNIGHT, Side::WHITE);
+      board[count] = makePiece(wNight, x, y, KNIGHT, WHITE);
+      secondBoard[count] = makePiece(wNight, x, y, KNIGHT, WHITE);
       break;
     case 'B':
-      board[count] = makePiece(wBishop, x, y, Type::BISHOP, Side::WHITE);
+      board[count] = makePiece(wBishop, x, y, BISHOP, WHITE);
+      secondBoard[count] = makePiece(wBishop, x, y, BISHOP, WHITE);
       break;
     case 'Q':
-      board[count] = makePiece(wQueen, x, y, Type::QUEEN, Side::WHITE);
+      board[count] = makePiece(wQueen, x, y, QUEEN, WHITE);
+      secondBoard[count] = makePiece(wQueen, x, y, QUEEN, WHITE);
       break;
     case 'K':
-      board[count] = makePiece(wKing, x, y, Type::KING, Side::WHITE);
+      board[count] = makePiece(wKing, x, y, KING, WHITE);
+      secondBoard[count] = makePiece(wKing, x, y, KING, WHITE);
       break;
     case 'P':
-      board[count] = makePiece(wPawn, x, y, Type::PAWN, Side::WHITE);
+      board[count] = makePiece(wPawn, x, y, PAWN, WHITE);
+      secondBoard[count] = makePiece(wPawn, x, y, PAWN, WHITE);
       break;
     case ' ':
       // for now fix later please
@@ -186,7 +228,7 @@ bool Board::makeMove(int from, int to, bool isWhiteTurn) {
   bool isLegal = false;
   auto fromSqaure = board[from];
   auto toSqaure = board[to];
-  printf("from: %d to: %d x: %d y: %d\n", from, to);
+  printf("from: %d to: %d\n", from, to);
   std::vector<int> idk;
 
   switch (fromSqaure->type) {
@@ -241,12 +283,13 @@ bool Board::makeMove(int from, int to, bool isWhiteTurn) {
   default:
     break;
   }
+  printf("blackKing: %d whiteKing: %d\n", blackKing, whiteKing);
   /* auto arrStr = possibleMoves(); */
   /* for (int i = 0; i < arrStr.size(); i++) { */
   /*   printf("%s\n", arrStr[i].c_str()); */
   /* } */
   /* printBoard2(); */
-  printBoard();
+  /* printBoard(); */
 
   allMoves.clear();
   return isLegal;
@@ -264,14 +307,21 @@ bool Board::checkPawn(int from, int to, Side side) {
     // enPassent == 1 means the piece is next + 1 and 2 is - 1 ok? ok. mby make
     // more clear later idk
     if (moves[i].enPassent == 1) {
-      swapEnPassant(from, to, from + 1);
+      swapEnPassant(from, to, from + 1, true);
+      swapEnPassant(from, to, from + 1, false);
+      return true;
     } else if (moves[i].enPassent == 2) {
-      swapEnPassant(from, to, from - 1);
+      swapEnPassant(from, to, from - 1, true);
+      swapEnPassant(from, to, from - 1, false);
+      return true;
     }
+
     if (moves[i].to == to) {
-      swapSquares(from, to);
+      swapSquares(from, to, true);
+      swapSquares(from, to, false);
       if (ok && to <= 7 && to >= 0) {
-        makePromotion(from, to, Side::WHITE);
+        makePromotion(from, to, WHITE, true);
+        makePromotion(from, to, WHITE, false);
       }
       return true;
     }
@@ -342,9 +392,12 @@ bool Board::checkNight(int from, int to, Side side) {
   if (!(distance >= -3 && distance <= 3)) {
     return false;
   }
+
+  knightMoves(from, &moves, side);
   for (int i = 0; i < moves.size(); i++) {
     if (moves[i].to == to) {
-      swapSquares(from, to);
+      swapSquares(from, to, true);
+      swapSquares(from, to, false);
       return true;
     }
   }
@@ -360,7 +413,8 @@ bool Board::checkBishop(int from, int to, Side side) {
 
   for (int i = 0; i < moves.size(); i++) {
     if (moves[i].to == to) {
-      swapSquares(from, to);
+      swapSquares(from, to, true);
+      swapSquares(from, to, false);
       return true;
     }
   }
@@ -378,7 +432,8 @@ bool Board::checkRook(int from, int to, Side side) {
 
   for (int i = 0; i < moves.size(); i++) {
     if (moves[i].to == to) {
-      swapSquares(from, to);
+      swapSquares(from, to, true);
+      swapSquares(from, to, false);
       return true;
     }
   }
@@ -387,6 +442,7 @@ bool Board::checkRook(int from, int to, Side side) {
 }
 
 bool Board::checkQueen(int from, int to, Side side) {
+  auto oppKing = side == WHITE ? blackKing : whiteKing;
   bool isLegal = false;
   int edge = from % 8;
 
@@ -398,8 +454,10 @@ bool Board::checkQueen(int from, int to, Side side) {
 
   copyVector(&moves);
   for (int i = 0; i < moves.size(); i++) {
+    printf("%d %d\n", moves[i].to, oppKing);
     if (moves[i].to == to) {
-      swapSquares(from, to);
+      swapSquares(from, to, true);
+      swapSquares(from, to, false);
       return true;
     }
   }
@@ -414,11 +472,18 @@ bool Board::checkKing(int from, int to, Side side) {
   std::vector<Move> moves;
   checkPossibleMoves(from, 1, side, &moves);
 
-  kingMoves(from, to, &moves, side);
+  kingMoves(from, &moves, side);
 
   for (int i = 0; i < moves.size(); i++) {
     if (moves[i].to == to) {
-      swapSquares(from, to);
+      swapSquares(from, to, true);
+      swapSquares(from, to, false);
+
+      if (side == WHITE) {
+        whiteKing = to;
+      } else {
+        blackKing = to;
+      }
       return true;
     }
   }
@@ -482,17 +547,17 @@ std::vector<Move> *Board::checkPossibleMoves(int pos, int times, Side side,
   return moves;
 }
 
-void Board::knightMoves(int from, int to, std::vector<Move> *moves, Side side) {
-  checkMove(moves, from, to, 6, KNIGHT, side);
-  checkMove(moves, from, to, 10, KNIGHT, side);
-  checkMove(moves, from, to, 15, KNIGHT, side);
-  checkMove(moves, from, to, 17, KNIGHT, side);
+void Board::knightMoves(int from, std::vector<Move> *moves, Side side) {
+  checkMove(moves, from, 6, KNIGHT, side);
+  checkMove(moves, from, 10, KNIGHT, side);
+  checkMove(moves, from, 15, KNIGHT, side);
+  checkMove(moves, from, 17, KNIGHT, side);
 }
 
-void Board::kingMoves(int from, int to, std::vector<Move> *moves, Side side) {
-  checkMove(moves, from, to, 7, KING, side);
-  checkMove(moves, from, to, 8, KING, side);
-  checkMove(moves, from, to, 9, KING, side);
+void Board::kingMoves(int from, std::vector<Move> *moves, Side side) {
+  checkMove(moves, from, 7, KING, side);
+  checkMove(moves, from, 8, KING, side);
+  checkMove(moves, from, 9, KING, side);
 }
 
 void Board::pawnMoves(int from, int to, std::vector<Move> *moves, Side side,
@@ -503,38 +568,81 @@ void Board::pawnMoves(int from, int to, std::vector<Move> *moves, Side side,
   int toSquare7 = isUp ? from - 7 : from + 7;
   int toSquare9 = isUp ? from - 9 : from + 9;
   int toSquare16 = isUp ? from - 16 : from + 16;
+  bool isWhite = side == WHITE ? true : false;
 
-  if (AS_SIDE(toSquare8) == BLANK && toSquare8 == to) {
-    moves->push_back({from, to, PAWN, false});
-  }
-  if (AS_SIDE(toSquare7) == oppSide && toSquare7 == to) {
-    moves->push_back({from, to, PAWN, true});
-  }
-  if (AS_SIDE(toSquare9) == oppSide && toSquare9 == to) {
-    moves->push_back({from, to, PAWN, true});
-  }
+  if (toSquare8 >= 0 && toSquare8 <= 63)
+    if (AS_SIDE(toSquare8) == BLANK) {
+      moves->push_back({from, to, PAWN, false});
+    }
 
-  if (doubleJump && AS_SIDE(toSquare8) == BLANK &&
-      AS_SIDE(toSquare16) == BLANK && toSquare16 == to) {
-    moves->push_back({from, to, PAWN, false});
-  }
+  if (toSquare7 >= 0 && toSquare7 <= 63)
+    if (AS_SIDE(toSquare7) == oppSide) {
+      moves->push_back({from, to, PAWN, true});
+    }
+
+  if (toSquare9 >= 0 && toSquare9 <= 63)
+    if (AS_SIDE(toSquare9) == oppSide) {
+      moves->push_back({from, to, PAWN, true});
+    }
+
+  if (toSquare16 >= 0 && toSquare16 <= 63)
+    if (doubleJump && AS_SIDE(toSquare8) == BLANK &&
+        AS_SIDE(toSquare16) == BLANK) {
+      moves->push_back({from, to, PAWN, false});
+    }
 
   // en passant
-  if ((AS_SIDE(from + 1) == WHITE && from + 9 == to)) {
+  if (AS_SIDE(from + 1) == WHITE) {
     moves->push_back({from, to, PAWN, true, 1});
   }
-  if ((AS_SIDE(from - 1) != WHITE && from + 7 == to)) {
+  if (AS_SIDE(from - 1) != WHITE) {
     moves->push_back({from, to, PAWN, true, 2});
   }
 }
 
-void Board::checkMove(std::vector<Move> *moves, int from, int to, int amount,
-                      Type type, Side side) {
-  if (from - amount == to && AS_SIDE(from - amount) != side) {
-    pushMove(moves, from, to, KING, side);
-  }
-  if (from + amount == to && AS_SIDE(from + amount) != side) {
-    pushMove(moves, from, to, KING, side);
+void Board::checkMove(std::vector<Move> *moves, int from, int amount, Type type,
+                      Side side) {
+  if (!(from - amount < 0))
+    if (AS_SIDE(from - amount) != side) {
+      pushMove(moves, from, from - amount, type, side);
+    }
+  if (!(from + amount > 63))
+    if (AS_SIDE(from + amount) != side) {
+      pushMove(moves, from, from + amount, type, side);
+    }
+}
+
+void Board::getAllPossibleMoves(int from, Side side, Type piece,
+                                std::vector<Move> *moves) {
+  bool isWhite = side == BLACK ? false : true;
+
+  switch (secondBoard[from]->type) {
+  case PAWN:
+    pawnMoves(from, 1, moves, side, isWhite);
+    break;
+  case KNIGHT:
+    knightMoves(from, moves, side);
+    break;
+  case BISHOP:
+    checkPossibleMoves(from, 7, side, moves);
+    checkPossibleMoves(from, 9, side, moves);
+    break;
+  case ROOK:
+    checkPossibleMoves(from, 1, side, moves);
+    checkPossibleMoves(from, 8, side, moves);
+    break;
+  case QUEEN:
+    checkPossibleMoves(from, 1, side, moves);
+    checkPossibleMoves(from, 8, side, moves);
+    checkPossibleMoves(from, 7, side, moves);
+    checkPossibleMoves(from, 9, side, moves);
+    break;
+  case KING:
+    kingMoves(from, moves, side);
+    break;
+  default:
+    // Unreachable
+    break;
   }
 }
 
@@ -546,62 +654,12 @@ void Board::copyVector(std::vector<Move> *moves) {
   }
 }
 
-std::vector<Move> *Board::getAllPieceMoves(Type type, Side side) {
-  bool isWhite = side == WHITE;
-}
-
-std::vector<Move> *Board::getAllPossibleMoves() {}
-
-void Board::swapSquares(int from, int to) {
-  int x = (to % 8) * 100;
-  int y = (to / 8) * 100;
-  printf("side: %d, sid2: %d\n", board[from]->side, board[to]->side);
-
-  board[to]->objTexture = board[from]->objTexture;
-  board[to]->side = board[from]->side;
-  board[to]->type = board[from]->type;
-  board[to]->changePosition(x, y);
-  board[from]->objTexture = NULL;
-  board[from]->side = BLANK;
-  board[from]->type = NONE;
-}
-
-void Board::swapEnPassant(int from, int to, int piecePos) {
-  int x = (to % 8) * 100;
-  int y = (to / 8) * 100;
-
-  board[from]->changePosition(x, y);
-  board[to]->objTexture = NULL;
-  board[to]->type = Type::NONE;
-  board[piecePos]->objTexture = NULL;
-  board[piecePos]->side = Side::BLANK;
-  board[piecePos]->type = Type::NONE;
-
-  auto temp = board[from];
-  board[from] = board[to];
-  board[to] = temp;
-}
-
-void Board::makePromotion(int from, int to, bool Side) {
-  auto temp = board[from];
-  board[from] = board[to];
-  board[to] = temp;
-
-  board[to]->objTexture = Side == Side::WHITE ? wQueen : bQueen;
-  board[from]->objTexture = NULL;
-
-  board[from]->type = Type::NONE;
-  board[to]->type = Type::QUEEN;
-  board[to]->side = Side::WHITE;
-  board[from]->side = Side::BLANK;
-}
-
 void Board::pushMove(std::vector<Move> *moves, int from, int to, Type piece,
                      Side oppSide) {
   if (board[to]->side == oppSide) {
-    moves->push_back({from, to, PAWN, true});
+    moves->push_back({from, to, piece, true});
   } else {
-    moves->push_back({from, to, PAWN, false});
+    moves->push_back({from, to, piece, false});
   }
 }
 
@@ -619,9 +677,80 @@ bool Board::hasMultiMovesForSquare(std::vector<Move> *moves, int to,
   return false;
 }
 
-bool Board::willBeInCheck(Move *move) { return true; }
+/* bool Board::willBeInCheck(int from, int to, bool isWhite) { */
+/*   auto side = isWhite ? WHITE : BLACK; */
+/*   std::vector<Move> moves; */
 
-std::vector<std::string> Board::possibleMoves() {
+/*   swapSquares(from, to, false); */
+
+/*   for (int i = 0; i < 63; i++) { */
+/*     if (secondBoard[i]->side == side) { */
+/*       getAllPossibleMoves(i, side, secondBoard[i]->type, &moves); */
+/*       if (isInCheck(&moves, isWhite)) { */
+/*         return true; */
+/*       } */
+/*     } */
+/*   } */
+
+/*   return false; */
+/* } */
+
+/* bool Board::isInCheck(std::vector<Move> *moves, bool isWhite) { */
+/*   int king = isWhite ? whiteKing : blackKing; */
+/*   for (int i = 0; i < moves->size(); i++) { */
+/*     if (moves->at(i).to == king) */
+/*       return true; */
+/*   } */
+/*   return false; */
+/* } */
+
+void Board::swapSquares(int from, int to, bool firstBoard) {
+  int x = GET_X(to);
+  int y = GET_Y(to);
+  auto chessBoard = firstBoard ? board : secondBoard;
+
+  chessBoard[to]->objTexture = chessBoard[from]->objTexture;
+  chessBoard[to]->side = chessBoard[from]->side;
+  chessBoard[to]->type = chessBoard[from]->type;
+  chessBoard[to]->changePosition(x, y);
+  chessBoard[from]->objTexture = NULL;
+  chessBoard[from]->side = BLANK;
+  chessBoard[from]->type = NONE;
+}
+
+void Board::swapEnPassant(int from, int to, int piecePos, bool firstBoard) {
+  int x = GET_X(to);
+  int y = GET_Y(to);
+  auto chessBoard = firstBoard ? board : secondBoard;
+
+  chessBoard[from]->changePosition(x, y);
+  chessBoard[to]->objTexture = NULL;
+  chessBoard[to]->type = Type::NONE;
+  chessBoard[piecePos]->objTexture = NULL;
+  chessBoard[piecePos]->side = Side::BLANK;
+  chessBoard[piecePos]->type = Type::NONE;
+
+  auto temp = chessBoard[from];
+  chessBoard[from] = chessBoard[to];
+  chessBoard[to] = temp;
+}
+
+void Board::makePromotion(int from, int to, bool Side, bool firstBoard) {
+  auto chessBoard = firstBoard ? board : secondBoard;
+
+  auto temp = chessBoard[from];
+  chessBoard[from] = chessBoard[to];
+  chessBoard[to] = temp;
+
+  chessBoard[to]->objTexture = Side == Side::WHITE ? wQueen : bQueen;
+  chessBoard[from]->objTexture = NULL;
+
+  chessBoard[from]->type = Type::NONE;
+  chessBoard[to]->type = Type::QUEEN;
+  chessBoard[to]->side = Side::WHITE;
+  chessBoard[from]->side = Side::BLANK;
+}
+std::vector<std::string> Board::generatePGN() {
   std::vector<std::string> convertedMoves;
 
   for (int i = 0; i < allMoves.size(); i++) {
@@ -704,66 +833,4 @@ std::vector<std::string> Board::possibleMoves() {
     convertedMoves.push_back(str);
   }
   return convertedMoves;
-}
-
-void Board::printBoard() {
-  printf("|");
-  for (int i = 0; i < 64; i++) {
-    if (i % 8 == 0 && i != 0) {
-      printf("\n---------------------------------\n");
-      printf("|");
-    }
-    switch (board[i]->type) {
-    case Type::PAWN:
-      printf(" P |");
-      break;
-    case Type::KNIGHT:
-      printf(" N |");
-      break;
-    case Type::BISHOP:
-      printf(" B |");
-      break;
-    case Type::QUEEN:
-      printf(" Q |");
-      break;
-    case Type::KING:
-      printf(" K |");
-      break;
-    case Type::ROOK:
-      printf(" R |");
-      break;
-    case Type::NONE:
-      printf("   |");
-      break;
-    default:
-      // unreachable
-      break;
-    }
-  }
-  printf("\n----------------------------------\n");
-}
-
-void Board::printBoard2() {
-  printf("|");
-  for (int i = 0; i < 64; i++) {
-    if (i % 8 == 0 && i != 0) {
-      printf("\n---------------------------------\n");
-      printf("|");
-    }
-    switch (board[i]->side) {
-    case WHITE:
-      printf(" W |");
-      break;
-    case BLACK:
-      printf(" B |");
-      break;
-    case BLANK:
-      printf("   |");
-      break;
-    default:
-      // unreachable
-      break;
-    }
-  }
-  printf("\n----------------------------------\n");
 }

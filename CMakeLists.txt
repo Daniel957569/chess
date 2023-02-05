@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.5.2)
 find_package(SDL2 REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
 set(SOURCES main.cpp Game.cpp Game.hpp Object.cpp Object.hpp Board.cpp
-    Board.hpp)
+    Board.hpp Debug.cpp Debug.hpp)
 add_executable(chess ${SOURCES})
 target_link_libraries(chess SDL2)
 target_link_libraries(chess SDL2_image)

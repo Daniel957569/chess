@@ -1,5 +1,6 @@
 #include "Object.hpp"
 #include "Game.hpp"
+#include <cstdio>
 
 Object::Object(SDL_Texture *tex, int x, int y, Type pieceType, Side isItWhite) {
   objTexture = tex;
@@ -33,8 +34,14 @@ void Object::update() {
 }
 
 void Object::render() {
-  /* if (isMarked) { */
-  /*   SDL_SetRenderDrawColor(Game::gRenderer, 0xFF, 0x00, 0x00, 0xFF); */
+  /* int pos = xpos / 100 + (ypos / 100) * 8; */
+  /* printf("pos: %d x: %d y: %d \n", pos, xpos, ypos); */
+
+  /* if (pos % 2 == 0) { */
+  /*   SDL_SetRenderDrawColor(Game::gRenderer, 60, 60, 60, 60); */
+  /*   SDL_RenderFillRect(Game::gRenderer, &dest); */
+  /* } else { */
+  /*   SDL_SetRenderDrawColor(Game::gRenderer, 160, 160, 160, 160); */
   /*   SDL_RenderFillRect(Game::gRenderer, &dest); */
   /* } */
   SDL_RenderCopy(Game::gRenderer, objTexture, NULL, &dest);

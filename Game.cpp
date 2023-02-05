@@ -71,6 +71,8 @@ void Game::handleEvents() {
 
       if (chessboard->makeMove(fromPos, toPos, isWhiteTurn)) {
         isWhiteTurn = !isWhiteTurn;
+        /* Debug::printBoardPieces(&chessboard->board); */
+        /* Debug::printBoardSides(&chessboard->board); */
       } else {
         chessboard->board[fromPos]->changePosition((fromPos % 8) * 100,
                                                    (fromPos / 8) * 100);
