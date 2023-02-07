@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#define AS_SIDE(num) (board[num]->side)
+#define AS_SIDE(num) (chessBoard->at(num)->side)
 
 #define TO_COLUMN(move) ((char)move.to % 8 + 97)
 #define TO_ROW(move) ((char)move.to / 8 + 49)
@@ -34,8 +34,8 @@ public:
 
   static int calcPosition(int x, int y);
 
-  std::array<Object *, 63> board;
-  std::array<Object *, 63> secondBoard;
+  std::array<Object *, 64> secondBoard;
+  std::array<Object *, 64> board;
   std::vector<char> possiableMoves();
 
 private:
@@ -57,21 +57,22 @@ private:
 
   void getAllPieceMoves(int from, std::vector<Move> *moves, bool isWhite);
 
-  void knightMoves(int from, std::vector<Move> *moves, Side side);
+  void knightMoves(int from, std::vector<Move> *moves, Side side,
+                   bool isTesting);
   void queenMoves(int from, std::vector<Move> *moves, Side side);
   void rookMoves(int from, std::vector<Move> *moves, Side side);
   void bishopMoves(int from, std::vector<Move> *moves, Side side);
-  void kingMoves(int from, std::vector<Move> *moves, Side side);
+  void kingMoves(int from, std::vector<Move> *moves, Side side, bool isTesting);
   void pawnMoves(int from, int to, std::vector<Move> *moves, Side side,
-                 bool isUp);
+                 bool isTesting);
   void checkMove(std::vector<Move> *moves, int from, int amount, Type type,
-                 Side side);
+                 Side side, bool isTesting);
 
-  void getAllPossibleMoves(int from, Side side, Type piece,
-                           std::vector<Move> *moves);
+  void getAllPossibleMoves(int from, Side side, std::vector<Move> *moves);
 
   std::vector<Move> *checkPossibleMoves(int from, int times, Side side,
-                                        std::vector<Move> *moves);
+                                        std::vector<Move> *moves,
+                                        bool isTesting);
 
   void swapSquares(int from, int to, bool firstBoard);
   void swapEnPassant(int from, int to, int piecePos, bool firstBoard);
@@ -84,13 +85,12 @@ private:
 
   void pushMove(std::vector<Move> *moves, int from, int to, Type piece,
                 Side side);
+
+  void copyBoard();
   void copyVector(std::vector<Move> *moves);
 
   bool willBeInCheck(int from, int to, bool isWhite);
   bool isInCheck(std::vector<Move> *moves, bool isWhite);
-
-  void printBoard();
-  void printBoard2();
 
   SDL_Texture *cBoard;
   SDL_Texture *bRook;

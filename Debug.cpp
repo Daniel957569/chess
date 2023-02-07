@@ -2,7 +2,7 @@
 #include "Board.hpp"
 #include <stdio.h>
 
-void Debug::printBoardPieces(std::array<Object *, 63> *board) {
+void Debug::printBoardPieces(std::array<Object *, 64> *board) {
   printf("|");
   for (int i = 0; i < 64; i++) {
     if (i % 8 == 0 && i != 0) {
@@ -39,7 +39,7 @@ void Debug::printBoardPieces(std::array<Object *, 63> *board) {
   printf("\n----------------------------------\n");
 }
 
-void Debug::printBoardSides(std::array<Object *, 63> *board) {
+void Debug::printBoardSides(std::array<Object *, 64> *board) {
   printf("|");
   for (int i = 0; i < 64; i++) {
     if (i % 8 == 0 && i != 0) {

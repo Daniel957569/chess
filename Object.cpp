@@ -22,6 +22,8 @@ Object::Object(SDL_Texture *tex, int x, int y, int w, int h) {
   ypos = y;
 }
 
+Object::~Object() {}
+
 void Object::update() {
   src.h = 0;
   src.w = 0;
