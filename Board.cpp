@@ -11,6 +11,11 @@
 #define GET_X(pos) ((pos % 8) * 100)
 #define GET_Y(pos) ((pos / 8) * 100)
 
+#define SIDES 1
+#define UP_DOWN 8
+#define DIAGNOL_LEFT 9
+#define DIAGNOL_RIGHT 7
+
 Object *textureBoard;
 
 std::vector<Move> allMoves;
@@ -21,6 +26,8 @@ Board::Board() {}
 Board::~Board() {}
 
 void Board::initBoard() {
+  blackInCheck = false;
+  whiteInCheck = false;
 
   cBoard = IMG_LoadTexture(Game::gRenderer, "../images/board.png");
   bRook = IMG_LoadTexture(Game::gRenderer, "../images/br.png");
@@ -192,60 +199,60 @@ void Board::renderFEN(std::string FEN) {
 }
 
 bool Board::makeMove(int from, int to, bool isWhiteTurn) {
+  if (whiteInCheck) {
+    printf("whiteInCheck: true\n");
+  } else {
+    printf("whiteInCheck: false\n");
+  }
+
+  if (blackInCheck) {
+    printf("blackInCheck: true\n");
+  } else {
+    printf("blackInCheck: false\n");
+  }
+
+  if (to == from) {
+    return false;
+  }
+
   bool isLegal = false;
+  auto side = isWhiteTurn ? WHITE : BLACK;
   auto fromSqaure = board[from];
   auto toSqaure = board[to];
   printf("from: %d to: %d\n", from, to);
+
   std::vector<int> idk;
 
   switch (fromSqaure->type) {
   case Type::PAWN:
     printf("pawn\n");
-    if (fromSqaure->side == WHITE) {
-      isLegal = checkPawn(from, to, WHITE);
-    } else {
-      isLegal = checkPawn(from, to, BLACK);
-    }
+    isLegal = checkPawn(from, to, side);
+
     break;
   case Type::KNIGHT:
     printf("night\n");
-    if (fromSqaure->side == WHITE) {
-      isLegal = checkNight(from, to, WHITE);
-    } else {
-      isLegal = checkNight(from, to, BLACK);
-    }
+    isLegal = checkNight(from, to, side);
+
     break;
   case Type::BISHOP:
     printf("bishop\n");
-    if (fromSqaure->side == WHITE) {
-      isLegal = checkBishop(from, to, WHITE);
-    } else {
-      isLegal = checkBishop(from, to, BLACK);
-    }
+    isLegal = checkBishop(from, to, side);
+
     break;
   case Type::ROOK:
     printf("rook\n");
-    if (fromSqaure->side == WHITE) {
-      isLegal = checkRook(from, to, WHITE);
-    } else {
-      isLegal = checkRook(from, to, BLACK);
-    }
+    isLegal = checkRook(from, to, side);
+
     break;
   case Type::QUEEN:
     printf("queen\n");
-    if (fromSqaure->side == WHITE) {
-      isLegal = checkQueen(from, to, WHITE);
-    } else {
-      isLegal = checkQueen(from, to, BLACK);
-    }
+    isLegal = checkQueen(from, to, side);
+
     break;
   case Type::KING:
     printf("king\n");
-    if (fromSqaure->side == WHITE) {
-      isLegal = checkKing(from, to, WHITE);
-    } else {
-      isLegal = checkKing(from, to, BLACK);
-    }
+    isLegal = checkKing(from, to, side);
+
     break;
   default:
     break;
@@ -255,10 +262,14 @@ bool Board::makeMove(int from, int to, bool isWhiteTurn) {
   /* for (int i = 0; i < arrStr.size(); i++) { */
   /*   printf("%s\n", arrStr[i].c_str()); */
   /* } */
-  /* printBoard2(); */
-  /* printBoard(); */
+  /* Debug::printBoardPieces(&board); */
 
+  int king = isWhiteTurn ? blackKing : whiteKing;
+  auto oppSide = isWhiteTurn ? BLACK : WHITE;
+
+  checkGameOver(king, oppSide);
   allMoves.clear();
+
   return isLegal;
 }
 
@@ -270,9 +281,6 @@ bool Board::checkPawn(int from, int to, Side side) {
   std::vector<Move> moves;
 
   pawnMoves(from, to, &moves, side, false);
-  for (int i = 0; i < moves.size(); i++) {
-    printf("%d %d %ld\n", moves.at(i).from, moves.at(i).to, moves.size());
-  }
 
   for (int i = 0; i < moves.size(); i++) {
     // enPassent == 1 means the piece is next + 1 and 2 is - 1 ok? ok. mby make
@@ -292,10 +300,12 @@ bool Board::checkPawn(int from, int to, Side side) {
       if (ok && to <= 7 && to >= 0) {
         makePromotion(from, to, WHITE, true);
       }
+      moves.clear();
       return true;
     }
   }
 
+  moves.clear();
   return ok;
 }
 
@@ -313,9 +323,11 @@ bool Board::checkNight(int from, int to, Side side) {
   for (int i = 0; i < moves.size(); i++) {
     if (moves[i].to == to) {
       swapSquares(from, to, true);
+      moves.clear();
       return true;
     }
   }
+  moves.clear();
   return isLegal;
 }
 
@@ -323,16 +335,17 @@ bool Board::checkBishop(int from, int to, Side side) {
   int edge = from % 8;
 
   std::vector<Move> moves;
-  checkPossibleMoves(from, 9, side, &moves, false);
-  checkPossibleMoves(from, 7, side, &moves, false);
+  bishopMoves(from, &moves, side, false);
 
   for (int i = 0; i < moves.size(); i++) {
     if (moves[i].to == to) {
       swapSquares(from, to, true);
+      moves.clear();
       return true;
     }
   }
 
+  moves.clear();
   return false;
 }
 
@@ -341,51 +354,51 @@ bool Board::checkRook(int from, int to, Side side) {
   int edge = from % 8;
 
   std::vector<Move> moves;
-  checkPossibleMoves(from, 1, side, &moves, false);
-  checkPossibleMoves(from, 8, side, &moves, false);
+  rookMoves(from, &moves, side, false);
 
   for (int i = 0; i < moves.size(); i++) {
     if (moves[i].to == to) {
       swapSquares(from, to, true);
+
+      moves.clear();
       return true;
     }
   }
 
+  moves.clear();
   return false;
 }
 
 bool Board::checkQueen(int from, int to, Side side) {
   auto oppKing = side == WHITE ? blackKing : whiteKing;
-  bool isLegal = false;
-  int edge = from % 8;
+  bool isWhite = side == WHITE ? true : false;
 
   std::vector<Move> moves;
-  checkPossibleMoves(from, 1, side, &moves, false);
-  checkPossibleMoves(from, 8, side, &moves, false);
-  checkPossibleMoves(from, 7, side, &moves, false);
-  checkPossibleMoves(from, 9, side, &moves, false);
+
+  queenMoves(from, &moves, side, false);
 
   copyVector(&moves);
-  for (int i = 0; i < moves.size(); i++) {
-    printf("%d %d \n", moves[i].from, moves[i].to);
-  }
+  /* for (int i = 0; i < moves.size(); i++) { */
+  /*   printf("from: %d, to: %d\n", moves[i].from, moves[i].to); */
+  /* } */
 
   for (int i = 0; i < moves.size(); i++) {
     if (moves[i].to == to) {
       swapSquares(from, to, true);
+      moves.clear();
+
       return true;
     }
   }
 
+  moves.clear();
   return false;
 }
 
 bool Board::checkKing(int from, int to, Side side) {
-  int edge = from % 8;
   auto oppSide = side == WHITE ? BLACK : WHITE;
 
   std::vector<Move> moves;
-  checkPossibleMoves(from, 1, side, &moves, false);
 
   kingMoves(from, &moves, side, false);
 
@@ -398,10 +411,13 @@ bool Board::checkKing(int from, int to, Side side) {
       } else {
         blackKing = to;
       }
+
+      moves.clear();
       return true;
     }
   }
 
+  moves.clear();
   return false;
 }
 
@@ -437,6 +453,9 @@ std::vector<Move> *Board::checkPossibleMoves(int pos, int times, Side side,
       moves->push_back(move);
       pos1 += times;
     }
+    if (currSqr == 7 || currSqr == 0 && times != 8) {
+      break;
+    }
   }
 
   prevSqr = pos % 8;
@@ -461,6 +480,9 @@ std::vector<Move> *Board::checkPossibleMoves(int pos, int times, Side side,
       moves->push_back(move);
       pos2 -= times;
     }
+    if (currSqr == 7 || currSqr == 0 && times != 8) {
+      break;
+    }
   }
   if (!isTesting) {
     std::vector<Move> tempMoves;
@@ -482,11 +504,32 @@ void Board::knightMoves(int from, std::vector<Move> *moves, Side side,
   checkMove(moves, from, 17, KNIGHT, side, isTesting);
 }
 
+void Board::bishopMoves(int from, std::vector<Move> *moves, Side side,
+                        bool isTesting) {
+  checkPossibleMoves(from, DIAGNOL_LEFT, side, moves, isTesting);
+  checkPossibleMoves(from, DIAGNOL_RIGHT, side, moves, isTesting);
+}
+
+void Board::rookMoves(int from, std::vector<Move> *moves, Side side,
+                      bool isTesting) {
+  checkPossibleMoves(from, SIDES, side, moves, isTesting);
+  checkPossibleMoves(from, UP_DOWN, side, moves, isTesting);
+}
+
+void Board::queenMoves(int from, std::vector<Move> *moves, Side side,
+                       bool isTesting) {
+  checkPossibleMoves(from, SIDES, side, moves, isTesting);
+  checkPossibleMoves(from, UP_DOWN, side, moves, isTesting);
+  checkPossibleMoves(from, DIAGNOL_RIGHT, side, moves, isTesting);
+  checkPossibleMoves(from, DIAGNOL_LEFT, side, moves, isTesting);
+}
+
 void Board::kingMoves(int from, std::vector<Move> *moves, Side side,
                       bool isTesting) {
-  checkMove(moves, from, 7, KING, side, isTesting);
-  checkMove(moves, from, 8, KING, side, isTesting);
-  checkMove(moves, from, 9, KING, side, isTesting);
+  checkMove(moves, from, DIAGNOL_RIGHT, KING, side, isTesting);
+  checkMove(moves, from, SIDES, KING, side, isTesting);
+  checkMove(moves, from, UP_DOWN, KING, side, isTesting);
+  checkMove(moves, from, DIAGNOL_LEFT, KING, side, isTesting);
 }
 
 void Board::pawnMoves(int from, int to, std::vector<Move> *moves, Side side,
@@ -567,43 +610,40 @@ void Board::checkMove(std::vector<Move> *moves, int from, int amount, Type type,
   }
 }
 
-bool testwhiteCheck = false;
-bool testblackCheck = false;
-
-void Board::getAllPossibleMoves(int from, Side side, std::vector<Move> *moves) {
+void Board::getAllPieceMoves(int from, Side side, std::vector<Move> *moves,
+                             bool isTesting) {
   bool isWhite = side == BLACK ? false : true;
+  auto chessBoard = isTesting ? &secondBoard : &board;
 
-  switch (secondBoard[from]->type) {
+  switch (chessBoard->at(from)->type) {
   case PAWN:
-    pawnMoves(from, 1, moves, side, true);
+    pawnMoves(from, 1, moves, side, isTesting);
     break;
   case KNIGHT:
-    knightMoves(from, moves, side, true);
+    knightMoves(from, moves, side, isTesting);
     break;
   case BISHOP:
-    checkPossibleMoves(from, 7, side, moves, true);
-    checkPossibleMoves(from, 9, side, moves, true);
+    bishopMoves(from, moves, side, isTesting);
     break;
   case ROOK:
-    checkPossibleMoves(from, 1, side, moves, true);
-    checkPossibleMoves(from, 8, side, moves, true);
+    rookMoves(from, moves, side, isTesting);
     break;
   case QUEEN:
-    checkPossibleMoves(from, 1, side, moves, true);
-    checkPossibleMoves(from, 8, side, moves, true);
-    checkPossibleMoves(from, 7, side, moves, true);
-    checkPossibleMoves(from, 9, side, moves, true);
-    for (int i = 0; i < moves->size(); i++) {
-      printf("piece: %d from: %d to: %d\n", moves->at(i).piece,
-             moves->at(i).from, moves->at(i).to);
-    }
+    queenMoves(from, moves, side, isTesting);
     break;
   case KING:
-    kingMoves(from, moves, side, true);
+    kingMoves(from, moves, side, isTesting);
     break;
   default:
     // Unreachable
     break;
+  }
+}
+
+void Board::getAllPossibleMoves(Side side, std::vector<Move> *moves) {
+  for (int i = 0; i < 64; i++) {
+    if (board[i]->side == side)
+      getAllPieceMoves(i, side, moves, true);
   }
 }
 
@@ -633,18 +673,25 @@ bool Board::hasMultiMovesForSquare(std::vector<Move> *moves, int to,
 bool Board::willBeInCheck(int from, int to, bool isWhite) {
   auto oppSide = isWhite ? BLACK : WHITE;
   auto side = isWhite ? WHITE : BLACK;
+  int tempKing = isWhite ? whiteKing : blackKing;
+  int originalKingPos = isWhite ? whiteKing : blackKing;
+
+  if (board[from]->type == KING) {
+    tempKing = to;
+  }
   std::vector<Move> moves;
   copyBoard();
 
   swapSquares(from, to, false);
-  Debug::printBoardPieces(&secondBoard);
+  printf("w: %d b: %d\n", whiteKing, blackKing);
 
   for (int i = 0; i < 64; i++) {
     if (secondBoard[i]->side == oppSide) {
-      getAllPossibleMoves(i, oppSide, &moves);
-      if (isInCheck(&moves, isWhite))
-        return true;
+      getAllPieceMoves(i, oppSide, &moves, true);
     }
+  }
+  if (isInCheck(tempKing, &moves, isWhite)) {
+    return true;
   }
 
   moves.clear();
@@ -652,21 +699,36 @@ bool Board::willBeInCheck(int from, int to, bool isWhite) {
   return false;
 }
 
-bool Board::isInCheck(std::vector<Move> *moves, bool isWhite) {
-  int king = isWhite ? whiteKing : blackKing;
+bool Board::isInCheck(int king, std::vector<Move> *moves, bool isWhite) {
   auto side = isWhite ? WHITE : BLACK;
-  for (int i = 0; i < moves->size(); i++) {
-    printf("%d %d\n", moves->at(i).to, king);
-    if (moves->at(i).to == king) {
-      break;
-    }
-  }
 
   for (int i = 0; i < moves->size(); i++) {
     if (moves->at(i).to == king)
       return true;
   }
   return false;
+}
+
+void Board::checkChecking(Side side) {
+  auto kingPos = side == WHITE ? blackKing : whiteKing;
+  std::vector<Move> moves;
+
+  for (int i = 0; i < 64; i++) {
+    if (board[i]->side == side) {
+    }
+  }
+}
+
+void Board::checkGameOver(int king, Side side) {
+  std::vector<Move> moves;
+  printf("king: %d side: %d\n", king, side);
+
+  kingMoves(king, &moves, side, false);
+
+  printf("ddddd- %ld\n", moves.size());
+  if (moves.size() == 0) {
+    printf("game over i guess?\n");
+  }
 }
 
 void Board::swapSquares(int from, int to, bool firstBoard) {
@@ -721,9 +783,6 @@ void Board::copyBoard() {
     Side side = board[i]->side;
     Type type = board[i]->type;
 
-    if (type == ROOK) {
-      printf("ddd: %d \n", i);
-    }
     secondBoard[i] = new Object(NULL, GET_X(i), GET_Y(i), type, side);
   }
 }

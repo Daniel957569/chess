@@ -7,11 +7,21 @@
 #include <vector>
 
 #define AS_SIDE(num) (chessBoard->at(num)->side)
+#define AS_TYPE(num) (chessBoard->at(num)->side)
 
 #define TO_COLUMN(move) ((char)move.to % 8 + 97)
 #define TO_ROW(move) ((char)move.to / 8 + 49)
 #define FROM_COLUMN(move) ((char)move.from % 8 + 97)
 #define FROM_ROW(move) ((char)move.from / 8 + 49)
+
+// 0  1  2  3  4  5  6  7
+// 8  9  10 11 12 13 14 15
+// 16 17 18 19 20 21 22 23
+// 24 25 26 27 28 29 30 31
+// 32 33 34 35 36 37 38 39
+// 40 41 42 43 44 45 46 47
+// 48 49 50 51 52 53 54 55
+// 56 57 58 59 60 61 62 63
 
 typedef struct {
   int from;
@@ -38,6 +48,11 @@ public:
   std::array<Object *, 64> board;
   std::vector<char> possiableMoves();
 
+  bool blackInCheck;
+  bool whiteInCheck;
+  bool isPromotion;
+  bool isMated;
+
 private:
   Object *makePiece(SDL_Texture *tex, int x, int y, Type pieceType,
                     Side isWhite);
@@ -55,20 +70,22 @@ private:
   bool checkKing(int from, int to, Side side);
   bool checkRook(int from, int to, Side side);
 
-  void getAllPieceMoves(int from, std::vector<Move> *moves, bool isWhite);
-
   void knightMoves(int from, std::vector<Move> *moves, Side side,
                    bool isTesting);
-  void queenMoves(int from, std::vector<Move> *moves, Side side);
-  void rookMoves(int from, std::vector<Move> *moves, Side side);
-  void bishopMoves(int from, std::vector<Move> *moves, Side side);
+  void queenMoves(int from, std::vector<Move> *moves, Side side,
+                  bool isTesting);
+  void rookMoves(int from, std::vector<Move> *moves, Side side, bool isTesting);
+  void bishopMoves(int from, std::vector<Move> *moves, Side side,
+                   bool isTesting);
   void kingMoves(int from, std::vector<Move> *moves, Side side, bool isTesting);
   void pawnMoves(int from, int to, std::vector<Move> *moves, Side side,
                  bool isTesting);
   void checkMove(std::vector<Move> *moves, int from, int amount, Type type,
                  Side side, bool isTesting);
 
-  void getAllPossibleMoves(int from, Side side, std::vector<Move> *moves);
+  void getAllPossibleMoves(Side side, std::vector<Move> *moves);
+  void getAllPieceMoves(int from, Side side, std::vector<Move> *moves,
+                        bool isTesting);
 
   std::vector<Move> *checkPossibleMoves(int from, int times, Side side,
                                         std::vector<Move> *moves,
@@ -89,8 +106,11 @@ private:
   void copyBoard();
   void copyVector(std::vector<Move> *moves);
 
+  void checkChecking(Side side);
   bool willBeInCheck(int from, int to, bool isWhite);
-  bool isInCheck(std::vector<Move> *moves, bool isWhite);
+  bool isInCheck(int to, std::vector<Move> *moves, bool isWhite);
+
+  void checkGameOver(int king, Side side);
 
   SDL_Texture *cBoard;
   SDL_Texture *bRook;

@@ -9,7 +9,6 @@ typedef enum {
   QUEEN,
   KING,
   NONE,
-  BOARD,
 } Type;
 
 typedef enum {
