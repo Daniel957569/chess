@@ -26,6 +26,7 @@ Board::Board() {}
 Board::~Board() {}
 
 void Board::initBoard() {
+  isMated = false;
   blackInCheck = false;
   whiteInCheck = false;
 
@@ -365,11 +366,12 @@ bool Board::checkQueen(int from, int to, Side side) {
   std::vector<Move> moves;
 
   queenMoves(from, &moves, side, false);
-
-  copyVector(&moves);
-  /* for (int i = 0; i < moves.size(); i++) { */
-  /*   printf("from: %d, to: %d\n", moves[i].from, moves[i].to); */
-  /* } */
+  printf("-----------\n");
+  for (int i = 0; i < moves.size(); i++) {
+    printf("from: %d to: %d\n", moves[i].from, moves[i].to);
+  }
+  printf("-----------\n");
+  printf("%ld\n", moves.size());
 
   for (int i = 0; i < moves.size(); i++) {
     if (moves[i].to == to) {
@@ -421,7 +423,7 @@ std::vector<Move> *Board::checkPossibleMoves(int pos, int times, Side side,
   int pos2 = pos - times;
   int edge = pos % 8;
   int prevSqr = pos % 8;
-  int currSqr = prevSqr;
+  int currSqr = pos1 % 8;
 
   for (;;) {
     if (pos1 > 63 || prevSqr == 7 && currSqr == 0 ||
@@ -436,19 +438,16 @@ std::vector<Move> *Board::checkPossibleMoves(int pos, int times, Side side,
       break;
     }
     if (AS_SIDE(pos1) == BLANK) {
-      prevSqr = currSqr;
-      currSqr++;
       Move move = {pos, pos1, board[pos]->type, false};
       moves->push_back(move);
       pos1 += times;
-    }
-    if (currSqr == 7 || currSqr == 0 && times != 8) {
-      break;
+      prevSqr = currSqr;
+      currSqr = pos1 % 8;
     }
   }
 
   prevSqr = pos % 8;
-  currSqr = prevSqr;
+  currSqr = pos2 % 8;
 
   for (;;) {
     if (pos2 < 0 || prevSqr == 7 && currSqr == 0 ||
@@ -463,16 +462,14 @@ std::vector<Move> *Board::checkPossibleMoves(int pos, int times, Side side,
       break;
     }
     if (AS_SIDE(pos2) == BLANK) {
-      prevSqr = currSqr;
-      currSqr--;
       Move move = {pos, pos2, board[pos]->type, false};
       moves->push_back(move);
       pos2 -= times;
-    }
-    if (currSqr == 7 || currSqr == 0 && times != 8) {
-      break;
+      prevSqr = currSqr;
+      currSqr = pos2 % 8;
     }
   }
+
   if (!isTesting) {
     std::vector<Move> tempMoves;
     for (int i = 0; i < moves->size(); i++) {
