@@ -36,16 +36,10 @@ void Object::update() {
 }
 
 void Object::render() {
-  /* int pos = xpos / 100 + (ypos / 100) * 8; */
-  /* printf("pos: %d x: %d y: %d \n", pos, xpos, ypos); */
-
-  /* if (pos % 2 == 0) { */
-  /*   SDL_SetRenderDrawColor(Game::gRenderer, 60, 60, 60, 60); */
-  /*   SDL_RenderFillRect(Game::gRenderer, &dest); */
-  /* } else { */
-  /*   SDL_SetRenderDrawColor(Game::gRenderer, 160, 160, 160, 160); */
-  /*   SDL_RenderFillRect(Game::gRenderer, &dest); */
-  /* } */
+  if (isMarked) {
+    SDL_SetRenderDrawColor(Game::gRenderer, 77, 255, 0, 102);
+    SDL_RenderFillRect(Game::gRenderer, &dest);
+  }
   SDL_RenderCopy(Game::gRenderer, objTexture, NULL, &dest);
 }
 

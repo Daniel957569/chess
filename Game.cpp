@@ -49,6 +49,10 @@ void Game::handleEvents() {
       isRunning = false;
       return;
     case SDL_MOUSEBUTTONDOWN: {
+      if (chessboard->isMated) {
+        return;
+      }
+
       fromPos = chessboard->calcPosition(event.motion.x, event.motion.y);
       isDragging = true;
       squareDragged = chessboard->board[fromPos];
@@ -60,6 +64,10 @@ void Game::handleEvents() {
       return;
     }
     case SDL_MOUSEBUTTONUP: {
+      if (chessboard->isMated) {
+        return;
+      }
+
       isDragging = false;
       if (squareDragged == NULL) {
         break;

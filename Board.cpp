@@ -199,29 +199,18 @@ void Board::renderFEN(std::string FEN) {
 }
 
 bool Board::makeMove(int from, int to, bool isWhiteTurn) {
-  if (whiteInCheck) {
-    printf("whiteInCheck: true\n");
-  } else {
-    printf("whiteInCheck: false\n");
-  }
-
-  if (blackInCheck) {
-    printf("blackInCheck: true\n");
-  } else {
-    printf("blackInCheck: false\n");
-  }
 
   if (to == from) {
     return false;
   }
 
+  auto inCheck = isWhiteTurn ? &blackInCheck : &whiteInCheck;
+  int king = isWhiteTurn ? whiteKing : blackKing;
   bool isLegal = false;
   auto side = isWhiteTurn ? WHITE : BLACK;
   auto fromSqaure = board[from];
   auto toSqaure = board[to];
   printf("from: %d to: %d\n", from, to);
-
-  std::vector<int> idk;
 
   switch (fromSqaure->type) {
   case Type::PAWN:
@@ -257,17 +246,17 @@ bool Board::makeMove(int from, int to, bool isWhiteTurn) {
   default:
     break;
   }
-  printf("blackKing: %d whiteKing: %d\n", blackKing, whiteKing);
-  /* auto arrStr = possibleMoves(); */
-  /* for (int i = 0; i < arrStr.size(); i++) { */
-  /*   printf("%s\n", arrStr[i].c_str()); */
-  /* } */
-  /* Debug::printBoardPieces(&board); */
 
-  int king = isWhiteTurn ? blackKing : whiteKing;
-  auto oppSide = isWhiteTurn ? BLACK : WHITE;
+  checkChecking(side);
+  if (*inCheck) {
+    printf("incheck\n");
+    auto oppSide = side == WHITE ? BLACK : WHITE;
+    if (checkGameOver(oppSide)) {
+      board[king]->isMarked = true;
+      isMated = true;
+    }
+  }
 
-  checkGameOver(king, oppSide);
   allMoves.clear();
 
   return isLegal;
@@ -550,12 +539,12 @@ void Board::pawnMoves(int from, int to, std::vector<Move> *moves, Side side,
       moves->push_back({from, toSquare8, PAWN, false, 0});
     }
 
-  if (toSquare7 >= 0 && toSquare7 <= 63)
+  if (toSquare7 >= 0 && toSquare7 <= 63 && !OUT_OF_BOARD(toSquare7))
     if (AS_SIDE(toSquare7) == oppSide) {
       moves->push_back({from, toSquare7, PAWN, true, 0});
     }
 
-  if (toSquare9 >= 0 && toSquare9 <= 63)
+  if (toSquare9 >= 0 && toSquare9 <= 63 && !OUT_OF_BOARD(toSquare9))
     if (AS_SIDE(toSquare9) == oppSide) {
       moves->push_back({from, toSquare9, PAWN, true, 0});
     }
@@ -567,10 +556,10 @@ void Board::pawnMoves(int from, int to, std::vector<Move> *moves, Side side,
     }
 
   // en passant
-  if (AS_SIDE(from + 1) == oppSide) {
+  if (AS_SIDE(from + 1) == oppSide && !OUT_OF_BOARD(from + 1)) {
     moves->push_back({from, toSquare7, PAWN, true, 1});
   }
-  if (AS_SIDE(from - 1) == oppSide) {
+  if (AS_SIDE(from - 1) == oppSide && !OUT_OF_BOARD(from - 1)) {
     moves->push_back({from, toSquare9, PAWN, true, 2});
   }
 
@@ -683,14 +672,13 @@ bool Board::willBeInCheck(int from, int to, bool isWhite) {
   copyBoard();
 
   swapSquares(from, to, false);
-  printf("w: %d b: %d\n", whiteKing, blackKing);
 
   for (int i = 0; i < 64; i++) {
     if (secondBoard[i]->side == oppSide) {
       getAllPieceMoves(i, oppSide, &moves, true);
     }
   }
-  if (isInCheck(tempKing, &moves, isWhite)) {
+  if (isInCheck(tempKing, &moves)) {
     return true;
   }
 
@@ -699,9 +687,7 @@ bool Board::willBeInCheck(int from, int to, bool isWhite) {
   return false;
 }
 
-bool Board::isInCheck(int king, std::vector<Move> *moves, bool isWhite) {
-  auto side = isWhite ? WHITE : BLACK;
-
+bool Board::isInCheck(int king, std::vector<Move> *moves) {
   for (int i = 0; i < moves->size(); i++) {
     if (moves->at(i).to == king)
       return true;
@@ -711,24 +697,40 @@ bool Board::isInCheck(int king, std::vector<Move> *moves, bool isWhite) {
 
 void Board::checkChecking(Side side) {
   auto kingPos = side == WHITE ? blackKing : whiteKing;
+  auto inCheck = side == WHITE ? &blackInCheck : &whiteInCheck;
+
   std::vector<Move> moves;
 
   for (int i = 0; i < 64; i++) {
-    if (board[i]->side == side) {
-    }
+    if (board[i]->side == side)
+      getAllPieceMoves(i, side, &moves, false);
   }
+
+  if (isInCheck(kingPos, &moves))
+    *inCheck = true;
 }
 
-void Board::checkGameOver(int king, Side side) {
+bool Board::checkGameOver(Side side) {
   std::vector<Move> moves;
-  printf("king: %d side: %d\n", king, side);
-
-  kingMoves(king, &moves, side, false);
-
-  printf("ddddd- %ld\n", moves.size());
-  if (moves.size() == 0) {
-    printf("game over i guess?\n");
+  if (side == WHITE) {
+    printf("white\n");
+  } else {
+    printf("black\n");
   }
+
+  for (int i = 0; i < 64; i++) {
+    if (board[i]->side == side)
+      getAllPieceMoves(i, side, &moves, false);
+  }
+  printf("-------- moves size: %ld\n", moves.size());
+
+  if (moves.size() == 1) {
+    printf("%d %d %d\n", moves[0].from, moves[0].to, moves[0].piece);
+  }
+  if (moves.size() == 0) {
+    return true;
+  }
+  return false;
 }
 
 void Board::swapSquares(int from, int to, bool firstBoard) {

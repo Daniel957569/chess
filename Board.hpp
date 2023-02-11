@@ -8,6 +8,8 @@
 
 #define AS_SIDE(num) (chessBoard->at(num)->side)
 #define AS_TYPE(num) (chessBoard->at(num)->side)
+#define OUT_OF_BOARD(num)                                                      \
+  (from % 8 == 0 && num % 8 == 7 || from % 8 == 7 && num % 8 == 0)
 
 #define TO_COLUMN(move) ((char)move.to % 8 + 97)
 #define TO_ROW(move) ((char)move.to / 8 + 49)
@@ -108,9 +110,9 @@ private:
 
   void checkChecking(Side side);
   bool willBeInCheck(int from, int to, bool isWhite);
-  bool isInCheck(int to, std::vector<Move> *moves, bool isWhite);
+  bool isInCheck(int to, std::vector<Move> *moves);
 
-  void checkGameOver(int king, Side side);
+  bool checkGameOver(Side side);
 
   SDL_Texture *cBoard;
   SDL_Texture *bRook;
