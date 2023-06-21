@@ -35,5 +35,5 @@ public:
 
 private:
   int xpos, ypos, width, height;
-  SDL_Rect src, dest;
+  SDL_Rect dest;
 };

@@ -25,9 +25,9 @@ Object::Object(SDL_Texture *tex, int x, int y, int w, int h) {
 Object::~Object() {}
 
 void Object::update() {
-  src.h = 0;
-  src.w = 0;
-  src.x = src.y = 0;
+  // src.h = 0;
+  // src.w = 0;
+  // src.x = src.y = 0;
 
   dest.x = xpos;
   dest.y = ypos;
@@ -36,9 +36,6 @@ void Object::update() {
 }
 
 void Object::render() {
-  src.h = 0;
-  src.w = 0;
-  src.x = src.y = 0;
   dest.x = xpos;
   dest.y = ypos;
   dest.h = height;
