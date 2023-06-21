@@ -18,16 +18,12 @@ int main(int argc, char *argv[]) {
     frameStart = SDL_GetTicks();
 
     game->handleEvents();
-    game->update();
+    // game->update();
     game->render();
 
     frameTime = SDL_GetTicks() - frameStart;
     if (frameDelay > frameTime) {
-      if (game->dragging()) {
-        SDL_Delay(1);
-      } else {
         SDL_Delay(frameDelay - frameTime);
-      }
     }
   }
 

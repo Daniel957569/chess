@@ -36,6 +36,14 @@ void Object::update() {
 }
 
 void Object::render() {
+  src.h = 0;
+  src.w = 0;
+  src.x = src.y = 0;
+  dest.x = xpos;
+  dest.y = ypos;
+  dest.h = height;
+  dest.w = width;
+
   if (isMarked) {
     SDL_SetRenderDrawColor(Game::gRenderer, 77, 255, 0, 102);
     SDL_RenderFillRect(Game::gRenderer, &dest);

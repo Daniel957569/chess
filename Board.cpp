@@ -30,19 +30,19 @@ void Board::initBoard() {
   blackInCheck = false;
   whiteInCheck = false;
 
-  cBoard = IMG_LoadTexture(Game::gRenderer, "../images/board.png");
-  bRook = IMG_LoadTexture(Game::gRenderer, "../images/br.png");
-  bNight = IMG_LoadTexture(Game::gRenderer, "../images/bn.png");
-  bBishop = IMG_LoadTexture(Game::gRenderer, "../images/bb.png");
-  bQueen = IMG_LoadTexture(Game::gRenderer, "../images/bq.png");
-  bKing = IMG_LoadTexture(Game::gRenderer, "../images/bk.png");
-  bPawn = IMG_LoadTexture(Game::gRenderer, "../images/bp.png");
-  wRook = IMG_LoadTexture(Game::gRenderer, "../images/wr.png");
-  wNight = IMG_LoadTexture(Game::gRenderer, "../images/wn.png");
-  wBishop = IMG_LoadTexture(Game::gRenderer, "../images/wb.png");
-  wQueen = IMG_LoadTexture(Game::gRenderer, "../images/wq.png");
-  wKing = IMG_LoadTexture(Game::gRenderer, "../images/wk.png");
-  wPawn = IMG_LoadTexture(Game::gRenderer, "../images/wp.png");
+  cBoard = IMG_LoadTexture(Game::gRenderer, "./images/board.png");
+  bRook = IMG_LoadTexture(Game::gRenderer, "./images/br.png");
+  bNight = IMG_LoadTexture(Game::gRenderer, "./images/bn.png");
+  bBishop = IMG_LoadTexture(Game::gRenderer, "./images/bb.png");
+  bQueen = IMG_LoadTexture(Game::gRenderer, "./images/bq.png");
+  bKing = IMG_LoadTexture(Game::gRenderer, "./images/bk.png");
+  bPawn = IMG_LoadTexture(Game::gRenderer, "./images/bp.png");
+  wRook = IMG_LoadTexture(Game::gRenderer, "./images/wr.png");
+  wNight = IMG_LoadTexture(Game::gRenderer, "./images/wn.png");
+  wBishop = IMG_LoadTexture(Game::gRenderer, "./images/wb.png");
+  wQueen = IMG_LoadTexture(Game::gRenderer, "./images/wq.png");
+  wKing = IMG_LoadTexture(Game::gRenderer, "./images/wk.png");
+  wPawn = IMG_LoadTexture(Game::gRenderer, "./images/wp.png");
 
   textureBoard = new Object(cBoard, 0, 0, 800, 800);
   renderBlackSide(0);
