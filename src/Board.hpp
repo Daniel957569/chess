@@ -8,7 +8,7 @@
 #include <vector>
 
 #define AS_SIDE(num) (chessBoard->at(num)->side)
-#define AS_TYPE(num) (chessBoard->at(num)->side)
+#define AS_TYPE(num) (chessBoard->at(num)->type)
 #define OUT_OF_BOARD(num)                                                      \
     (from % 8 == 0 && num % 8 == 7 || from % 8 == 7 && num % 8 == 0)
 
@@ -41,7 +41,7 @@ class Board {
 
     void initBoard();
     void updateBoard();
-    void RenderBoard();
+    void RenderBoard(bool isDragging, int draggedPos);
     void cleanBoard();
     bool makeMove(int from, int to, bool isWhiteTurn);
 
@@ -88,6 +88,9 @@ class Board {
     void checkMove(std::vector<Move> *moves, int from, int amount, Type type,
                    Side side, bool isTesting);
 
+    void checkCastle(std::vector<Move> *moves, int from, bool kingMoved,
+                     Side side, bool isTesting);
+
     void getAllPossibleMoves(Side side, std::vector<Move> *moves);
     void getAllPieceMoves(int from, Side side, std::vector<Move> *moves,
                           bool isTesting);
@@ -99,6 +102,8 @@ class Board {
     void swapSquares(int from, int to, bool firstBoard);
     void swapEnPassant(int from, int to, int piecePos, bool firstBoard);
     void makePromotion(int from, int to, bool isWhite, bool firstBoard);
+    void makeSmallCastle(int from, int to, bool isWhite, bool firstBoard);
+    void makeLongCastle(int from, int to, bool isWhite, bool firstBoard);
 
     void addMove(int from, int to);
 

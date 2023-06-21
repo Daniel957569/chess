@@ -109,7 +109,7 @@ void Game::update() { chessboard->updateBoard(); }
 
 void Game::render() {
     SDL_RenderClear(gRenderer);
-    chessboard->RenderBoard();
+    chessboard->RenderBoard(isDragging, fromPos);
     SDL_RenderPresent(gRenderer);
 }
 
